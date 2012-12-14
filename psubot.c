@@ -1,26 +1,42 @@
-#include <msp430.h>
 
-#define LED1 BIT0
-#define LED2 BIT1
-#define LED3 BIT2
+#include "psubot.h"
 
-int main( void ) {
+void psubot_init( void ) {
 
-   WDTCTL = WDTPW + WDTHOLD;
-   P2DIR |= LED1;
-   P2DIR |= LED2;
-   P2DIR |= LED3;
-   P2OUT = 0; /* Turn off all indicators.*/
+   /* Setup Motor I/O */
+   P1DIR = 0;
+   P1DIR |= EYE_R;
+   P1DIR |= EYE_L;
+   P1DIR |= EYE_ON;
+   
+   /* Setup LED I/O */
+   P2DIR = 0;
+   P2DIR |= LED_RED;
+   P2DIR |= LED_GREEN;
+   P2DIR |= LED_BLUE;
 
-   for (;;) {
-      P2OUT = LED1;
-      __delay_cycles( 500000 );
-      P2OUT = LED2;
-      __delay_cycles( 500000 );
-      P2OUT = LED3;
-      __delay_cycles( 500000 );
+   /* Turn off all indicators.*/
+   P1OUT = 0;
+   P2OUT = 0;
+}
+
+void psubot_button_enable( void ) {
+
+   /* Enable button interrupt. */
+   P2IFG &= ~BUTTON;
+   P2REN |= BUTTON;
+   P2IE |= BUTTON;
+
+   /* Listen for button release. */
+   P2IES &= ~BUTTON;
+}
+
+/* Purpose: Wait for stimuli.                                                 */
+void psubot_wait( void ) {
+
+   for( ; ; ) {
+      /* Go to sleep. */
+      __bis_SR_register( LPM3_bits + GIE );
    }
-
-   return 0;
 }
 
