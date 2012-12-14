@@ -1,14 +1,15 @@
 
 CC = msp430-gcc -mmcu=msp430g2553
 
-all: bin
+all: test
 
-bin:
+test:
 	$(CC) -c psubot.c
-	$(CC) -o psubot.out psubot.o
+	$(CC) -c test.c
+	$(CC) -o test.out test.o psubot.o
 
-flash:
-	mspdebug rf2500 "prog ./psubot.out"
+flash-test:
+	mspdebug rf2500 "prog ./test.out"
 
 clean:
 	rm *.o
