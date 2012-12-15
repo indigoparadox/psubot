@@ -2,6 +2,7 @@
 #include "psubot.h"
 
 int gi_debounce_counter_button = 0;
+BOOL gb_sleeping = 0;
 
 void psubot_init( void ) {
 
@@ -48,7 +49,7 @@ void psubot_eye_pos( int i_pos_in ) {
    /* Move the eye to position zero. */
    P1OUT |= EYE_R;
    while( !(P2IN & EYE_SENSE) ) {
-      SLEEP( 10 );
+      BOT_WAIT_CYCLES( 10 );
    }
    P1OUT &= ~EYE_R;
 
@@ -96,6 +97,30 @@ void psubot_wait( void ) {
    for( ; ; ) {
       /* Go to sleep. */
       __bis_SR_register( LPM3_bits + GIE );
+   }
+}
+
+#pragma vector=TIMER1_A0_VECTOR
+__interrupt void Timer1_A0( void ) {
+   TA1CCTL0 &= ~CCIFG;
+
+   /* Update the sleeping status. */
+   /* TODO: Put this in a common input interrupt handler. */
+   /*if( (P2IN & SWITCH) && gb_sleeping ) {
+      gb_sleeping = FALSE;
+   } else if( !(P2IN & SWITCH) && !gb_sleeping ) {
+      gb_sleeping = TRUE;
+   }*/
+
+   /* Check the debounce timer. */
+   if( gi_debounce_counter_button ) {
+      /* Don't accept button presses yet. */
+      P2IFG &= ~BUTTON;
+      gi_debounce_counter_button--;
+   } else if( !(P2IE & BUTTON ) ) {
+      /* Debounce complete. */
+      TA1CCTL0 &= ~ CCIE;
+      P2IE |= BUTTON;
    }
 }
 
