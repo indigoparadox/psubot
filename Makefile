@@ -5,8 +5,9 @@ all: test
 
 test:
 	$(CC) -c psubot.c
+	$(CC) -c uart.c
 	$(CC) -c test.c
-	$(CC) -o test.out test.o psubot.o
+	$(CC) -o test.out test.o uart.o psubot.o
 
 flash-test:
 	mspdebug rf2500 "prog ./test.out"

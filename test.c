@@ -19,7 +19,7 @@ int main( void ) {
 
    P2OUT = i_led_current;
 
-   psubot_serial_init();
+   uart_serial_init();
 
    for( ; ; ) {
       /* Go to sleep. */
@@ -85,5 +85,9 @@ __interrupt void USCI0RX_ISR( void ) {
 
       P2OUT = i_led_current;
    }
+
+   uart_putc( UCA0RXBUF );
+
+   //uart_printf( "READY\n\r" );
 }
 
