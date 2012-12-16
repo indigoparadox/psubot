@@ -49,7 +49,7 @@ void psubot_eye_pos( int i_pos_in ) {
    /* Move the eye to position zero. */
    P1OUT |= EYE_R;
    while( !(P2IN & EYE_SENSE) ) {
-      BOT_WAIT_CYCLES( 10 );
+      __delay_cycles( 10 );
    }
    P1OUT &= ~EYE_R;
 
@@ -91,36 +91,30 @@ void psubot_eye_right( int i_pos_in ) {
    P1OUT &= ~EYE_ON;
 }
 
-/* Purpose: Wait for stimuli.                                                 */
-void psubot_wait( void ) {
+void psubot_serial_init( void ) {
+   
+   /* Set DCO to 1MHz. */
+   BCSCTL1 = CALBC1_1MHZ;
+   DCOCTL = CALDCO_1MHZ;
+   
+   /* Set P1.1 and P1.2 to RX and TX. */
+   P1SEL = BIT1 + BIT2;                
+   P1SEL2 = BIT1 + BIT2;
+   
+   /* Use SMCLK. */
+   UCA0CTL1 |= UCSSEL_2;
 
-   for( ; ; ) {
-      /* Go to sleep. */
-      __bis_SR_register( LPM3_bits + GIE );
-   }
-}
+   /* Set bitrate to 9600. */
+   UCA0BR0 = 104;
+   UCA0BR1 = 0;
+   
+   /* Use modulation. */
+   UCA0MCTL = UCBRS_1;
 
-#pragma vector=TIMER1_A0_VECTOR
-__interrupt void Timer1_A0( void ) {
-   TA1CCTL0 &= ~CCIFG;
+   /* Start USCI. */
+   UCA0CTL1 &= ~UCSWRST;
 
-   /* Update the sleeping status. */
-   /* TODO: Put this in a common input interrupt handler. */
-   /*if( (P2IN & SWITCH) && gb_sleeping ) {
-      gb_sleeping = FALSE;
-   } else if( !(P2IN & SWITCH) && !gb_sleeping ) {
-      gb_sleeping = TRUE;
-   }*/
-
-   /* Check the debounce timer. */
-   if( gi_debounce_counter_button ) {
-      /* Don't accept button presses yet. */
-      P2IFG &= ~BUTTON;
-      gi_debounce_counter_button--;
-   } else if( !(P2IE & BUTTON ) ) {
-      /* Debounce complete. */
-      TA1CCTL0 &= ~ CCIE;
-      P2IE |= BUTTON;
-   }
+   /* Enable UART RX interrupt. */
+   IE2 |= UCA0RXIE;
 }
 
