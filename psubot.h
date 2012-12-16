@@ -34,23 +34,7 @@ typedef int BOOL;
 
 /* = Macros = */
 
-#define BUTTON_ENABLE() extern int gi_debounce_counter_button;
-#define BUTTON_DEBOUNCE( i_sec_in ) if( gi_debounce_counter_button ) { \
-      /* Button may still be bouncing. */ \
-      return; \
-   } else { \
-      /* Start the debounce timer. */ \
-      gi_debounce_counter_button = BUTTON_DEBOUNCE_TIMEOUT_INC * i_sec_in; \
-   } \
-   /* Enable the background maintenance timer. */ \
-   BCSCTL3 |= LFXT1S_2; \
-   BCSCTL1 |= DIVA_1; \
-   TA1CCR0 = 1200; \
-   TA1CCTL0 = 0x10; \
-   TA1CTL = TASSEL_1 + MC_1; \
-   TA1CCTL0 |= CCIE;
 #define SLEEP_ENABLE() extern BOOL gb_sleeping;
-#define BOT_WAIT_CYCLES( cycles_in ) __delay_cycles( cycles_in );
 
 /* = Function Prototypes = */
 
