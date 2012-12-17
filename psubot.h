@@ -10,8 +10,17 @@ typedef int BOOL;
 
 /* = Constants = */
 
+#ifndef NULL
+#define NULL 0
+#endif /* NULL */
+
+#ifndef TRUE
 #define TRUE 1
+#endif /* TRUE */
+
+#ifndef FALSE
 #define FALSE 0
+#endif /* FALSE */
 
 #define LED_RED   BIT0
 #define LED_GREEN BIT1

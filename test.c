@@ -61,10 +61,8 @@ __interrupt void Port_2( void ) {
 }
 #endif
 
-#pragma vector=USCIAB0RX_VECTOR
-__interrupt void USCI0RX_ISR( void ) {
-   /* Toggle LED if "A" RXed. */
-   if( 65 == UCA0RXBUF ) {
+void uart_command_handler( char* pc_command_in ) {
+   if( uart_strcmp( pc_command_in, "LED" ) ) {
       psubot_eye_pos( EYE_MAX_CYCLES_L / 2 );
       __delay_cycles( 500000 );
 
@@ -85,9 +83,5 @@ __interrupt void USCI0RX_ISR( void ) {
 
       P2OUT = i_led_current;
    }
-
-   uart_putc( UCA0RXBUF );
-
-   //uart_printf( "READY\n\r" );
 }
 
