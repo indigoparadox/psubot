@@ -48,8 +48,8 @@ void uart_printf( char* pc_string_in ) {
 
 #pragma vector=USCIAB0RX_VECTOR
 __interrupt void USCI0RX_ISR( void ) {
-   int i;
-   static int i_command_buffer_pos = 0;
+   uint8_t i;
+   static uint8_t i_command_buffer_pos = 0;
    static char ac_command_last[UART_COMMAND_LEN] = { NULL },
       c_char_last = NULL;
 
