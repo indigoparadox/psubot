@@ -91,30 +91,3 @@ void psubot_eye_right( int i_pos_in ) {
    P1OUT &= ~EYE_ON;
 }
 
-void psubot_serial_init( void ) {
-   
-   /* Set DCO to 1MHz. */
-   BCSCTL1 = CALBC1_1MHZ;
-   DCOCTL = CALDCO_1MHZ;
-   
-   /* Set P1.1 and P1.2 to RX and TX. */
-   P1SEL = BIT1 + BIT2;                
-   P1SEL2 = BIT1 + BIT2;
-   
-   /* Use SMCLK. */
-   UCA0CTL1 |= UCSSEL_2;
-
-   /* Set bitrate to 9600. */
-   UCA0BR0 = 104;
-   UCA0BR1 = 0;
-   
-   /* Use modulation. */
-   UCA0MCTL = UCBRS_1;
-
-   /* Start USCI. */
-   UCA0CTL1 &= ~UCSWRST;
-
-   /* Enable UART RX interrupt. */
-   IE2 |= UCA0RXIE;
-}
-
