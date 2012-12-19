@@ -17,8 +17,8 @@ void uart_serial_init( void ) {
    UCA0CTL1 |= UCSSEL_2;
 
    /* Set bitrate to 9600. */
-   UCA0BR0 = 104;
-   UCA0BR1 = 0;
+   UCA0BR0 = UART_UCA0BR0;
+   UCA0BR1 = UART_UCA0BR1;
    
    /* Use modulation. */
    UCA0MCTL = UCBRS_1;
@@ -71,7 +71,7 @@ BOOL uart_strcmp( char* pc_string1_in, char* pc_string2_in ) {
 __interrupt void USCI0RX_ISR( void ) {
    //uint8_t i;
    static uint8_t i_command_buffer_pos = 0;
-   static char ac_command_last[UART_COMMAND_LEN] = { NULL },
+   static char ac_command_last[SHELL_COMMAND_LEN] = { NULL },
       c_char_last = NULL;
 
    /* If the shell isn't enabled then just pass the whole kit on to the       *
@@ -89,7 +89,7 @@ __interrupt void USCI0RX_ISR( void ) {
       uart_echo( "\n\rREADY\n\r" );
 
    } else if( 13 != UCA0RXBUF ) {
-      if( i_command_buffer_pos <= (UART_COMMAND_LEN - 1) ) {
+      if( i_command_buffer_pos <= (SHELL_COMMAND_LEN - 1) ) {
          /* Add the character to the current buffer and echo it back. */
          ac_command_last[i_command_buffer_pos] = UCA0RXBUF;
          i_command_buffer_pos++;

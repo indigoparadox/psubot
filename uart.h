@@ -24,8 +24,12 @@ typedef int BOOL;
 #define FALSE 0
 #endif /* FALSE */
 
-#define UART_COMMAND_LEN 10
-#define UART_COMMAND_COUNT 10
+#define SHELL_COMMAND_LEN 10
+#define SHELL_COMMAND_COUNT 10
+
+/* 9600 bps */
+#define UART_UCA0BR0 104
+#define UART_UCA0BR1 0
 
 /* = Function Prototypes = */
 
