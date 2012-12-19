@@ -25,12 +25,14 @@ typedef int BOOL;
 #endif /* FALSE */
 
 #define UART_COMMAND_LEN 10
+#define UART_COMMAND_COUNT 10
 
 /* = Function Prototypes = */
 
 void uart_serial_init( void );
+void uart_shell_init( void );
 void uart_putc( const char );
-void uart_printf( char* );
+void uart_echo( char* );
 BOOL uart_strcmp( char*, char* );
 
 /* This must be defined in any test program that calls this header, even if   *

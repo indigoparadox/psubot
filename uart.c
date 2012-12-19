@@ -1,6 +1,8 @@
 
 #include "uart.h"
 
+BOOL b_shell_enabled = FALSE;
+
 void uart_serial_init( void ) {
    
    /* Set DCO to 1MHz. */
@@ -26,8 +28,11 @@ void uart_serial_init( void ) {
 
    /* Enable UART RX interrupt. */
    IE2 |= UCA0RXIE;
+}
 
-   uart_printf( "\n\rREADY\n\r" );
+void uart_shell_init( void ) {
+   b_shell_enabled = TRUE;
+   uart_echo( "\n\rREADY\n\r" );
 }
 
 void uart_putc( const char c_char_in ) {
@@ -35,7 +40,7 @@ void uart_putc( const char c_char_in ) {
    UCA0TXBUF = c_char_in;
 }
 
-void uart_printf( char* pc_string_in ) {
+void uart_echo( char* pc_string_in ) {
    char* pc_iter = pc_string_in;
 
    while( 0 != *pc_iter ) {
@@ -44,40 +49,6 @@ void uart_printf( char* pc_string_in ) {
       /* Next character. */
       pc_iter++;
    }
-}
-
-#pragma vector=USCIAB0RX_VECTOR
-__interrupt void USCI0RX_ISR( void ) {
-   uint8_t i;
-   static uint8_t i_command_buffer_pos = 0;
-   static char ac_command_last[UART_COMMAND_LEN] = { NULL },
-      c_char_last = NULL;
-
-   if( 13 == UCA0RXBUF && 13 != c_char_last ) {
-      /* "Enter" was received, so process the last command. */
-
-      if( uart_command_handler ) {
-         /* Execute the client program's command handler, if there is one. */
-         uart_command_handler( ac_command_last );
-         i_command_buffer_pos = 0;
-      }
-      uart_printf( "\n\rREADY\n\r" );
-
-   } else if( 13 != UCA0RXBUF ) {
-      if( i_command_buffer_pos <= (UART_COMMAND_LEN - 1) ) {
-         /* Add the character to the current buffer and echo it back. */
-         ac_command_last[i_command_buffer_pos] = UCA0RXBUF;
-         i_command_buffer_pos++;
-         uart_putc( UCA0RXBUF );
-      } else {
-         /* The command is too long, so reset. */
-         i_command_buffer_pos = 0;
-         uart_printf( "\n\rTOO LONG\n\r" );
-      }
-   }
-
-   /* Remember this character for later. */
-   c_char_last = UCA0RXBUF;
 }
 
 BOOL uart_strcmp( char* pc_string1_in, char* pc_string2_in ) {
@@ -94,5 +65,43 @@ BOOL uart_strcmp( char* pc_string1_in, char* pc_string2_in ) {
    }
 
    return TRUE;
+}
+
+#pragma vector=USCIAB0RX_VECTOR
+__interrupt void USCI0RX_ISR( void ) {
+   //uint8_t i;
+   static uint8_t i_command_buffer_pos = 0;
+   static char ac_command_last[UART_COMMAND_LEN] = { NULL },
+      c_char_last = NULL;
+
+   /* If the shell isn't enabled then just pass the whole kit on to the       *
+    * program's serial handler.                                               */
+   if( !b_shell_enabled ) {
+      uart_command_handler( NULL );
+   }
+
+   if( 13 == UCA0RXBUF && 13 != c_char_last ) {
+      /* "Enter" was received, so process the last command. */
+
+      /* Execute the client program's command handler, if there is one. */
+      uart_command_handler( ac_command_last );
+      i_command_buffer_pos = 0;
+      uart_echo( "\n\rREADY\n\r" );
+
+   } else if( 13 != UCA0RXBUF ) {
+      if( i_command_buffer_pos <= (UART_COMMAND_LEN - 1) ) {
+         /* Add the character to the current buffer and echo it back. */
+         ac_command_last[i_command_buffer_pos] = UCA0RXBUF;
+         i_command_buffer_pos++;
+         uart_putc( UCA0RXBUF );
+      } else {
+         /* The command is too long, so reset. */
+         i_command_buffer_pos = 0;
+         uart_echo( "\n\rTOO LONG\n\r" );
+      }
+   }
+
+   /* Remember this character for later. */
+   c_char_last = UCA0RXBUF;
 }
 
