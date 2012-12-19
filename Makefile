@@ -10,6 +10,12 @@ test:
 	$(CC) -c test.c
 	$(CC) -o test.out test.o uart.o psubot.o
 
+test_bluetooth:
+	$(CC) -c psubot.c
+	$(CC) -c uart.c
+	$(CC) -c test_bluetooth.c
+	$(CC) -o test_bluetooth.out test_bluetooth.o uart.o psubot.o
+
 # test_eyesense: A simple test that will change the eye color to blue when the
 # 					  motor right position sensor is depressed.
 test_eyesense:
@@ -22,6 +28,9 @@ flash-test:
 
 flash-test_eyesense:
 	mspdebug rf2500 "prog ./test_eyesense.out"
+
+flash-test_bluetooth:
+	mspdebug rf2500 "prog ./test_bluetooth.out"
 
 clean:
 	rm *.o
