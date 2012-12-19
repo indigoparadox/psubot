@@ -26,9 +26,7 @@ typedef int BOOL;
 #define LED_GREEN BIT1
 #define LED_BLUE  BIT2
 
-#define BUTTON    BIT3
-#define EYE_SENSE BIT4
-#define SWITCH    BIT5
+#define EYE_SENSE BIT3
 
 /* 5 = 1 second */
 #define BUTTON_DEBOUNCE_TIMEOUT_INC   5
@@ -36,8 +34,7 @@ typedef int BOOL;
 /* Eye directions are from the robot's point of view. */
 
 #define EYE_R     BIT4
-#define EYE_L     BIT3
-#define EYE_ON    BIT5
+#define EYE_L     BIT5
 
 #define EYE_MAX_CYCLES_L 27000
 

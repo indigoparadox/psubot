@@ -1,18 +1,15 @@
 
 #include "psubot.h"
+#include "uart.h"
 
 SLEEP_ENABLE();
 
 int i_led_current = LED_RED;
 
 int main( void ) {
-   int i;
-
    WDTCTL = WDTPW + WDTHOLD;
 
    psubot_init();
-
-   psubot_button_enable();
 
    psubot_eye_enable();
    psubot_eye_pos( EYE_MAX_CYCLES_L / 2 );
@@ -20,6 +17,7 @@ int main( void ) {
    P2OUT = i_led_current;
 
    uart_serial_init();
+   uart_shell_init();
 
    for( ; ; ) {
       /* Go to sleep. */
