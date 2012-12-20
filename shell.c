@@ -6,8 +6,6 @@
 
 #include "shell.h"
 
-#include <msp430g2553.h>
-
 extern shell_command ao_commands[];
 extern int gi_commands_count;
 

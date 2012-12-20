@@ -1,8 +1,6 @@
 
 #include "uart.h"
 
-#include <msp430g2553.h>
-
 void uart_serial_init( void ) {
    
    /* Set DCO to 1MHz. */

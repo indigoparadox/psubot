@@ -28,19 +28,12 @@ typedef int BOOL;
 
 #define EYE_SENSE BIT3
 
-/* 5 = 1 second */
-#define BUTTON_DEBOUNCE_TIMEOUT_INC   5
-
 /* Eye directions are from the robot's point of view. */
 
 #define EYE_R     BIT4
 #define EYE_L     BIT5
 
 #define EYE_MAX_CYCLES_L 27000
-
-/* = Macros = */
-
-#define SLEEP_ENABLE() extern BOOL gb_sleeping;
 
 /* = Function Prototypes = */
 
