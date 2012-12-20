@@ -4,7 +4,7 @@ CC = msp430-gcc
 CFLAGS = -mmcu=msp430g2553 -Wall
 
 BASE_SYSTEM = psubot.o
-INTERACTIVE_SYSTEM = uart.o
+INTERACTIVE_SYSTEM = uart.o shell.o
 
 all: test
 

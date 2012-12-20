@@ -2,6 +2,8 @@
 #ifndef PSUBOT_H
 #define PSUBOT_H
 
+#include <msp430g2553.h>
+
 /* = Types = */
 
 typedef int BOOL;

@@ -1,6 +1,9 @@
 
+#include <msp430g2553.h>
+
 #include "psubot.h"
 #include "uart.h"
+#include "shell.h"
 
 int i_led_current = LED_RED;
 
@@ -13,6 +16,11 @@ int main( void ) {
    psubot_eye_pos( EYE_MAX_CYCLES_L / 2 );
 
    P2OUT = i_led_current;
+
+   for( ; ; ) {
+      /* Go to sleep. */
+      __bis_SR_register( LPM3_bits + GIE );
+   }
 
    uart_serial_init();
 
@@ -42,6 +50,7 @@ int main( void ) {
    return 0;
 }
 
+#if 0
 BOOL uart_serial_handler( char* pc_command_in ) {
    if( uart_strcmp( pc_command_in, "LED" ) ) {
       switch( i_led_current ) {
@@ -67,4 +76,15 @@ BOOL uart_serial_handler( char* pc_command_in ) {
 
    }
 }
+#endif
+
+void command_help( char* pc_args_in ) {
+
+}
+
+SHELL_COMMANDS_BLOCK_START( 2 )
+//SHELL_COMMANDS_BLOCK_ITEM( "HELP", "DISPLAY THIS LIST.", command_help ),
+SHELL_COMMANDS_BLOCK_ITEM( "LED", "CHANGE LED COLOR.", command_help ),
+SHELL_COMMANDS_BLOCK_ITEM( "EYE", "POSITION EYE.", command_help ),
+SHELL_COMMANDS_BLOCK_END()
 
