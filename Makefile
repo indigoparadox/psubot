@@ -1,36 +1,34 @@
 
-CC = msp430-gcc -mmcu=msp430g2553 -Wall
+CC = msp430-gcc
+
+CFLAGS = -mmcu=msp430g2553 -Wall
+
+BASE_SYSTEM = psubot.o
+INTERACTIVE_SYSTEM = uart.o
 
 all: test
 
 # test: A general test/debug suite.
-test:
-	$(CC) -c psubot.c
-	$(CC) -c uart.c
-	$(CC) -c test.c
-	$(CC) -o test.out test.o uart.o psubot.o
+test: test.o $(BASE_SYSTEM) $(INTERACTIVE_SYSTEM)
+	$(CC) $(CFLAGS) -o $@.out $^
 
-test_bluetooth:
-	$(CC) -c psubot.c
-	$(CC) -c uart.c
-	$(CC) -c test_bluetooth.c
-	$(CC) -o test_bluetooth.out test_bluetooth.o uart.o psubot.o
+# test_bluetooth: A general test/debug suite designed to operate over the
+# 						bluetooth remote serial port.
+test_bluetooth: test_bluetooth.o $(BASE_SYSTEM) $(INTERACTIVE_SYSTEM)
+	$(CC) $(CFLAGS) -o $@.out $^
 
 # test_eyesense: A simple test that will change the eye color to blue when the
 # 					  motor right position sensor is depressed.
-test_eyesense:
-	$(CC) -c psubot.c
-	$(CC) -c test_eyesense.c
-	$(CC) -o test_eyesense.out test_eyesense.o psubot.o
+test_eyesense: test_eyesense.o $(BASE_SYSTEM)
+	$(CC) $(CFLAGS) -o $@.out $^
 
-flash-test:
-	mspdebug rf2500 "prog ./test.out"
+# = Generic Utility Definitions =
 
-flash-test_eyesense:
-	mspdebug rf2500 "prog ./test_eyesense.out"
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ -c $<
 
-flash-test_bluetooth:
-	mspdebug rf2500 "prog ./test_bluetooth.out"
+flash: $(FLASH)
+	mspdebug rf2500 "prog ./$(FLASH).out"
 
 clean:
 	rm *.o
