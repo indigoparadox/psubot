@@ -54,22 +54,22 @@ void uart_echo( char* pc_string_in ) {
 BOOL uart_strcmp( char* pc_string1_in, char* pc_string2_in ) {
    char* pc_iter_1 = pc_string1_in,
       * pc_iter_2 = pc_string2_in;
-
-   while( NULL != *pc_iter_1 && NULL != *pc_iter_2 ) {
+   
+   do {
       if( *pc_iter_1 != *pc_iter_2 ) {
          return FALSE;
       }
 
       pc_iter_1++;
       pc_iter_2++;
-   }
+   } while( NULL != *pc_iter_1 && NULL != *pc_iter_2 );
 
    return TRUE;
 }
 
 #pragma vector=USCIAB0RX_VECTOR
 __interrupt void USCI0RX_ISR( void ) {
-   //uint8_t i;
+   uint8_t i;
    static uint8_t i_command_buffer_pos = 0;
    static char ac_command_last[SHELL_COMMAND_LEN] = { NULL },
       c_char_last = NULL;
@@ -85,6 +85,9 @@ __interrupt void USCI0RX_ISR( void ) {
 
       /* Execute the client program's command handler, if there is one. */
       uart_command_handler( ac_command_last );
+      for( i = 0 ; i < SHELL_COMMAND_LEN ; i++ ) {
+         ac_command_last[i] = NULL;
+      }
       i_command_buffer_pos = 0;
       uart_echo( "\n\rREADY\n\r" );
 

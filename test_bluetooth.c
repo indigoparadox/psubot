@@ -18,15 +18,16 @@ int main( void ) {
 
    uart_serial_init();
 
-   __delay_cycles( 2500000 );
+   //__delay_cycles( 2500000 );
 
-   P1DIR |= BIT0;
-   P1OUT |= BIT0;
+   /* DEBUG: Turn on red LED. */
+   /*P1DIR |= BIT0;
+   P1OUT |= BIT0;*/
 
    uart_echo( "\r\n+STWMOD=0\r\n" );
    uart_echo( "\r\n+STNA=PSUBot\r\n" );
-   uart_echo( "\r\n+STPIN=Shi4w4s3-ga-aru\r\n" );
-   //uart_echo( "\r\n+STPIN=2222\r\n" );
+   //uart_echo( "\r\n+STPIN=Shi4w4s3-ga-aru\r\n" );
+   uart_echo( "\r\n+STPIN=2222\r\n" );
    uart_echo( "\r\n+STOAUT=1\r\n" );
 
    __delay_cycles( 500000 );
@@ -77,9 +78,6 @@ __interrupt void Port_2( void ) {
 
 void uart_command_handler( char* pc_command_in ) {
    if( uart_strcmp( pc_command_in, "LED" ) ) {
-      psubot_eye_pos( EYE_MAX_CYCLES_L / 2 );
-      __delay_cycles( 500000 );
-
       switch( i_led_current ) {
          case LED_RED:
             i_led_current = LED_GREEN;
@@ -96,6 +94,11 @@ void uart_command_handler( char* pc_command_in ) {
       }
 
       P2OUT = i_led_current;
+
+   } else if( uart_strcmp( pc_command_in, "EYE" ) ) {
+      psubot_eye_pos( EYE_MAX_CYCLES_L / 2 );
+      __delay_cycles( 500000 );
+
    }
 }
 
