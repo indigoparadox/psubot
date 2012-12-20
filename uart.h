@@ -2,6 +2,14 @@
 #ifndef UART_H
 #define UART_H
 
+/* This header includes functions/constants/etc for use with general UART     *
+ * operations as well as more specific shell routines under the assumption    *
+ * that one is useless without the other. Note that someday, support for an   *
+ * SPI or I2C-based shell theoretically may lead to a requirement for a split *
+ * refactoring of these two groups.                                           */
+
+/* = Includes = */
+
 #include <msp430g2553.h>
 
 #include <stdint.h>

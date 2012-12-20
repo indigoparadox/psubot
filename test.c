@@ -1,8 +1,8 @@
 
+#include <msp430g2553.h>
+
 #include "psubot.h"
 #include "uart.h"
-
-SLEEP_ENABLE();
 
 int i_led_current = LED_RED;
 
@@ -26,38 +26,6 @@ int main( void ) {
 
    return 0;
 }
-
-#if 0
-#pragma vector=PORT2_VECTOR
-__interrupt void Port_2( void ) {
-   if( P2IFG & BUTTON ) {
-      /* Reset button status. */
-      P2IFG &= ~BUTTON;
-      P2IE &= ~BUTTON;
-
-      psubot_eye_pos( EYE_MAX_CYCLES_L / 2 );
-
-      switch( i_led_current ) {
-         case LED_RED:
-            i_led_current = LED_GREEN;
-            break;
-
-         case LED_GREEN:
-            i_led_current = LED_BLUE;
-            break;
-   
-         case LED_BLUE:
-            i_led_current = LED_RED;
-            break;
-
-      }
-
-      P2OUT = i_led_current;
-
-      P2IE |= BUTTON;
-   }
-}
-#endif
 
 void uart_command_handler( char* pc_command_in ) {
    if( uart_strcmp( pc_command_in, "LED" ) ) {

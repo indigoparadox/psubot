@@ -1,4 +1,6 @@
 
+#include <msp430g2553.h>
+
 #include "psubot.h"
 
 int gi_debounce_counter_button = 0;

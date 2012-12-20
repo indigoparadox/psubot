@@ -2,8 +2,6 @@
 #include "psubot.h"
 #include "uart.h"
 
-SLEEP_ENABLE();
-
 int i_led_current = LED_RED;
 
 int main( void ) {
@@ -34,7 +32,7 @@ int main( void ) {
    uart_echo( "\r\n+INQ=1\r\n" );
    __delay_cycles( 500000 );
 
-   uart_shell_init();
+   shell_init();
 
    for( ; ; ) {
       /* Go to sleep. */
@@ -44,39 +42,7 @@ int main( void ) {
    return 0;
 }
 
-#if 0
-#pragma vector=PORT2_VECTOR
-__interrupt void Port_2( void ) {
-   if( P2IFG & BUTTON ) {
-      /* Reset button status. */
-      P2IFG &= ~BUTTON;
-      P2IE &= ~BUTTON;
-
-      psubot_eye_pos( EYE_MAX_CYCLES_L / 2 );
-
-      switch( i_led_current ) {
-         case LED_RED:
-            i_led_current = LED_GREEN;
-            break;
-
-         case LED_GREEN:
-            i_led_current = LED_BLUE;
-            break;
-   
-         case LED_BLUE:
-            i_led_current = LED_RED;
-            break;
-
-      }
-
-      P2OUT = i_led_current;
-
-      P2IE |= BUTTON;
-   }
-}
-#endif
-
-void uart_command_handler( char* pc_command_in ) {
+BOOL uart_serial_handler( char* pc_command_in ) {
    if( uart_strcmp( pc_command_in, "LED" ) ) {
       switch( i_led_current ) {
          case LED_RED:
