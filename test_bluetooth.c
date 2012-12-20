@@ -17,11 +17,6 @@ int main( void ) {
 
    P2OUT = i_led_current;
 
-   for( ; ; ) {
-      /* Go to sleep. */
-      __bis_SR_register( LPM3_bits + GIE );
-   }
-
    uart_serial_init();
 
    //__delay_cycles( 2500000 );

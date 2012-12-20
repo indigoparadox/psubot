@@ -2,6 +2,10 @@
 #ifndef SHELL_H
 #define SHELL_H
 
+/* = Includes = */
+
+#include <msp430g2553.h>
+
 /* = Constants = */
 
 #define SHELL_COMMAND_LEN 10
