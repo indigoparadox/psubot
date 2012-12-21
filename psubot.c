@@ -64,12 +64,23 @@ void psubot_eye_pos( int i_pos_in ) {
 
 /* Purpose: Push the eye to the robot's left by the given increment.          */
 void psubot_eye_left( int i_pos_in ) {
-   int i;
+   long l_target_pos,
+      l_pos_in = i_pos_in,
+      i;
+
+   l_target_pos = l_pos_in * EYE_MAX_CYCLES_L / 100;
+
+   #if 0
+   char ac_pos_out[5] = { '\0' };
+   uart_echo( "\n\rOUT: " );
+   uart_echo( ltoa( l_target_pos, ac_pos_out, 10 ) );
+   uart_echo( "\n\r" );
+   #endif
 
    /* Move the eye to the selected position. */
    P1OUT |= EYE_L;
    /* TODO: Use a timer for this? */
-   for( i = 0 ; i < i_pos_in ; i++ ) {}
+   for( i = 0 ; i < l_target_pos ; i++ ) {}
    P1OUT &= ~EYE_L;
 }
 
