@@ -7,15 +7,25 @@
 #include "shell.h"
 
 #include <stdint.h>
+#include <string.h>
 
 extern shell_command gao_commands[];
 extern int gi_commands_count;
 
 char gac_args[SHELL_ARG_COUNT][SHELL_COMMAND_LEN];
+char gac_command_history[SHELL_HIST_LEN][SHELL_COMMAND_LEN];
 
 void shell_init( void ) {
+   uint8_t i, j;
+
    /* Enable UART RX interrupt. */
    IE2 |= UCA0RXIE;
+
+   for( i = 0 ; i < SHELL_HIST_LEN ; i++ ) {
+      for( j = 0 ; j < SHELL_COMMAND_LEN ; j++ ) {
+         gac_command_history[i][j] = '\0';
+      }
+   }
 
    uart_echo( "\n\r" );
    uart_echo( SHELL_STRING_PROMPT );
@@ -53,8 +63,8 @@ __interrupt void shell_uart0_isr( void ) {
    uint8_t i, j;
    static uint8_t i_command_buffer_pos = 0,
       i_arg_buffer_pos = 0,
-      i_arg_buffer_sel = 0;
-   static char ac_command_last[SHELL_COMMAND_LEN] = { '\0' };
+      i_arg_buffer_sel = 0,
+      i_hist_pos = 1;
 
    if( '\r' == UCA0RXBUF ) {
       /* "Enter" was received, so process the last command. */
@@ -71,8 +81,8 @@ __interrupt void shell_uart0_isr( void ) {
       i_arg_buffer_pos = 0;
       i_arg_buffer_sel = 0;
       i_command_buffer_pos = 0;
-      while( NULL != ac_command_last[i_command_buffer_pos] ) {
-         if( ' ' == ac_command_last[i_command_buffer_pos] ) {
+      while( NULL != gac_command_history[0][i_command_buffer_pos] ) {
+         if( ' ' == gac_command_history[0][i_command_buffer_pos] ) {
             /* Move on to the next argument buffer if we can. */
             if( SHELL_ARG_COUNT <= (i_arg_buffer_sel + 1) ) {
                /* TODO: Do we need to handle this situation if it can't occur *
@@ -87,7 +97,7 @@ __interrupt void shell_uart0_isr( void ) {
             /* Add the next character to the current argument buffer. */
             /* TODO: Slim down the RAM used for each argument buffer safely. */
             gac_args[i_arg_buffer_sel][i_arg_buffer_pos] =
-               ac_command_last[i_command_buffer_pos];
+               gac_command_history[0][i_command_buffer_pos];
             i_arg_buffer_pos++;
          }
 
@@ -96,13 +106,17 @@ __interrupt void shell_uart0_isr( void ) {
 
       /* Execute the client program's command handler, if there is one. */
       for( i = 0 ; i < gi_commands_count ; i++ ) {
-         if( shell_strcmp( gao_commands[i].command, ac_command_last ) ) {
+         if( shell_strcmp( gao_commands[i].command, gac_command_history[0] ) ) {
             gao_commands[i].handler();
          }
       }
 
+      /* Copy the command into the history buffer and wipe the active buffer. */
+      for( i = 0 ; i < (SHELL_HIST_LEN - 1) ; i++ ) {
+         strcpy( gac_command_history[i + 1], gac_command_history[i] );
+      }
       for( i = 0 ; i < SHELL_COMMAND_LEN ; i++ ) {
-         ac_command_last[i] = '\0';
+         gac_command_history[0][i] = '\0';
       }
       i_command_buffer_pos = 0;
       uart_echo( SHELL_STRING_PROMPT );
@@ -116,12 +130,22 @@ __interrupt void shell_uart0_isr( void ) {
 
    } else if( '\t' == UCA0RXBUF ) {
       /* Tab character. */
-      uart_echo( "TAB" );
+      if( i_hist_pos < SHELL_HIST_LEN ) {
+         strcpy( gac_command_history[0], gac_command_history[i] );
+         uart_echo( "\n\r" );
+         uart_echo( gac_command_history[i] );
+         i_hist_pos++;
+      } else {
+         i_hist_pos = 1;
+         for( i = 0 ; i < SHELL_COMMAND_LEN ; i++ ) {
+            gac_command_history[0][i] = '\0';
+         }
+      }
 
    } else if( '\r' != UCA0RXBUF ) {
       if( i_command_buffer_pos <= (SHELL_COMMAND_LEN - 1) ) {
          /* Add the character to the current buffer and echo it back. */
-         ac_command_last[i_command_buffer_pos] = UCA0RXBUF;
+         gac_command_history[0][i_command_buffer_pos] = UCA0RXBUF;
          i_command_buffer_pos++;
          uart_putc( UCA0RXBUF );
       } else {
