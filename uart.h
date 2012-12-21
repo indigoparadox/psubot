@@ -6,8 +6,6 @@
 
 #include <msp430g2553.h>
 
-#include <stdint.h>
-
 /* = Types = */
 
 typedef int BOOL;
