@@ -1,8 +1,11 @@
 
 #include "psubot.h"
 
-int gi_debounce_counter_button = 0;
+#include <stdint.h>
+
+//int gi_debounce_counter_button = 0;
 BOOL gb_sleeping = 0;
+int gi_eye_move_loops = 0;
 
 void psubot_init( void ) {
 
@@ -28,13 +31,33 @@ void psubot_eye_enable( void ) {
 /* Parameters:                                                                *
  *    i_pos_in - The percentage to the left to position the eye.              */
 void psubot_eye_pos( int i_pos_in ) {
+   uint8_t i_sense_count = 0;
 
    /* Move the eye to position zero. */
    P1OUT |= EYE_R;
-   while( !(P1IN & EYE_SENSE) ) {
+   while( 
+      !(P1IN & EYE_SENSE && i_sense_count >= 200) && 
+      EYE_MAX_LOOPS_R > gi_eye_move_loops
+   ) {
       __delay_cycles( 10 );
+      gi_eye_move_loops++;
+      
+      /* Don't count the sensor as being held down unless it's being held     *
+       * down!                                                                */
+      if( P1IN && EYE_SENSE ) {
+         i_sense_count++;
+      } else {
+         i_sense_count = 0;
+      }
    }
    P1OUT &= ~EYE_R;
+
+   /* Make sure we didn't just time out. */
+   if( EYE_MAX_LOOPS_R <= gi_eye_move_loops ) {
+      psubot_halt();
+   } else {
+      gi_eye_move_loops = 0;
+   }
 
    psubot_eye_left( i_pos_in );
 }
@@ -59,5 +82,27 @@ void psubot_eye_right( int i_pos_in ) {
    /* TODO: Use a timer for this? */
    for( i = 0 ; i < i_pos_in ; i++ ) {}
    P1OUT &= ~EYE_R;
+}
+
+/* Purpose: Halt all activity and blink the internal LED.                     */
+void psubot_halt( void ) {
+   
+   /* Disable all interrupts. */
+   P1IE = 0;
+   P2IE = 0;
+   IE2 = 0;
+
+   /* Turn off all outputs. */
+   P1OUT = 0;
+   P2OUT = 0;
+
+   /* Blink indefinitely. */
+   P1DIR |= ILED;
+   for(;;) {
+      P1OUT |= ILED;
+      __delay_cycles( 250000 );
+      P1OUT &= ~ILED;
+      __delay_cycles( 250000 );
+   }
 }
 

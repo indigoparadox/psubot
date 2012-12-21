@@ -22,6 +22,9 @@ test_bluetooth: test_bluetooth.o $(BASE_SYSTEM) $(INTERACTIVE_SYSTEM)
 test_eyesense: test_eyesense.o $(BASE_SYSTEM)
 	$(CC) $(CFLAGS) -o $@.out $^
 
+test_eyemotion: test_eyemotion.o $(BASE_SYSTEM)
+	$(CC) $(CFLAGS) -o $@.out $^
+
 # = Generic Utility Definitions =
 
 %.o: %.c
