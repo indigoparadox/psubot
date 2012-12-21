@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+/* TODO: Keep a global variable with the current position of the eye. Set it  *
+ *       to 0 during the eye init phase and increment/decrement it whenever   *
+ *       the eye is moved. Don't allow the eye to move out of its operational *
+ *       range.                                                               */
+
 //int gi_debounce_counter_button = 0;
 BOOL gb_sleeping = 0;
 int gi_eye_move_loops = 0;
@@ -86,12 +91,16 @@ void psubot_eye_left( int i_pos_in ) {
 
 /* Purpose: Push the eye to the robot's right by the given increment.         */
 void psubot_eye_right( int i_pos_in ) {
-   int i;
+   long l_target_pos,
+      l_pos_in = i_pos_in,
+      i;
+
+   l_target_pos = l_pos_in * EYE_MAX_CYCLES_L / 100;
 
    /* Move the eye to the selected position. */
    P1OUT |= EYE_R;
    /* TODO: Use a timer for this? */
-   for( i = 0 ; i < i_pos_in ; i++ ) {}
+   for( i = 0 ; i < l_target_pos ; i++ ) {}
    P1OUT &= ~EYE_R;
 }
 
