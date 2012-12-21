@@ -9,7 +9,6 @@
 /* = Constants = */
 
 #define SHELL_COMMAND_LEN 10
-#define SHELL_HIST_LEN 5
 #define SHELL_ARG_COUNT 5
 
 #define SHELL_STRING_PROMPT "READY\n\r"

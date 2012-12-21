@@ -73,7 +73,13 @@ void command_led( void ) {
 }
 
 void command_eye( void ) {
-   psubot_eye_pos( atoi( gac_args[1] ) );
+   if( shell_strcmp( "POS", gac_args[1] ) ) {
+      psubot_eye_pos( atoi( gac_args[2] ) );
+   } else if( shell_strcmp( "R", gac_args[1] ) ) {
+      psubot_eye_right( atoi( gac_args[2] ) );
+   } else if( shell_strcmp( "L", gac_args[1] ) ) {
+      psubot_eye_left( atoi( gac_args[2] ) );
+   }
 }
 
 SHELL_COMMANDS_BLOCK_START( 2 )
