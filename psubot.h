@@ -42,7 +42,7 @@ typedef int BOOL;
 
 /* Configuration */
 
-#define EYE_MAX_CYCLES_L 24000
+#define EYE_MAX_CYCLES_L 10500
 #define EYE_MAX_LOOPS_R 40000
 
 /* = Function Prototypes = */

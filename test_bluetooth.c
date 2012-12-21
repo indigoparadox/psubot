@@ -5,6 +5,10 @@
 #include "uart.h"
 #include "shell.h"
 
+#include <stdlib.h>
+
+SHELL_ENABLE();
+
 int i_led_current = LED_RED;
 
 int main( void ) {
@@ -13,7 +17,7 @@ int main( void ) {
    psubot_init();
 
    psubot_eye_enable();
-   psubot_eye_pos( EYE_MAX_CYCLES_L / 2 );
+   psubot_eye_pos( 50 );
 
    P2OUT = i_led_current;
 
@@ -38,12 +42,17 @@ int main( void ) {
    return 0;
 }
 
-void command_led( char** pc_args_in ) {
-   uart_echo( "\n\r" );
-   uart_echo( pc_args_in[0] );
-   uart_echo( "\n\r" );
-   uart_echo( pc_args_in[0] );
+void command_led( void ) {
+   
+   if( shell_strcmp( "RED", gac_args[1] ) ) {
+      i_led_current = LED_RED;
+   } else if( shell_strcmp( "GREEN", gac_args[1] ) ) {
+      i_led_current = LED_GREEN;
+   } else if( shell_strcmp( "BLUE", gac_args[1] ) ) {
+      i_led_current = LED_BLUE;
+   }
 
+   #if 0
    switch( i_led_current ) {
       case LED_RED:
          i_led_current = LED_GREEN;
@@ -58,13 +67,13 @@ void command_led( char** pc_args_in ) {
          break;
 
    }
+   #endif
 
    P2OUT = i_led_current;
 }
 
-void command_eye( char** pc_args_in ) {
-   psubot_eye_pos( EYE_MAX_CYCLES_L / 2 );
-   __delay_cycles( 500000 );
+void command_eye( void ) {
+   psubot_eye_pos( atoi( gac_args[1] ) );
 }
 
 SHELL_COMMANDS_BLOCK_START( 2 )
