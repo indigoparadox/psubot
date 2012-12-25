@@ -4,6 +4,7 @@
 #include "psubot.h"
 #include "uart.h"
 #include "shell.h"
+#include "beep.h"
 
 #include <stdlib.h>
 
@@ -17,11 +18,15 @@ int main( void ) {
    psubot_init();
 
    psubot_eye_enable();
-   psubot_eye_pos( 50 );
+   //psubot_eye_pos( 50 );
+
+   psubot_wheels_enable();
 
    P2OUT = i_led_current;
 
    uart_serial_init();
+
+   beep_init();
 
    uart_echo( "\r\n+STWMOD=0\r\n" );
    uart_echo( "\r\n+STNA=PSUBot\r\n" );
@@ -31,6 +36,8 @@ int main( void ) {
    __delay_cycles( 500000 );
    uart_echo( "\r\n+INQ=1\r\n" );
    __delay_cycles( 500000 );
+
+   beep( 40, 250 );
 
    shell_init();
 
@@ -82,8 +89,30 @@ void command_eye( void ) {
    }
 }
 
-SHELL_COMMANDS_BLOCK_START( 2 )
-SHELL_COMMANDS_BLOCK_ITEM( "LED", "CHANGE LED COLOR.", command_led ),
-SHELL_COMMANDS_BLOCK_ITEM( "EYE", "POSITION EYE.", command_eye ),
+void command_beep( void ) {
+   beep( atoi( gac_args[1] ), atoi( gac_args[2] ) );
+}
+
+void command_drive( void ) {
+   if( shell_strcmp( "R", gac_args[1] ) ) {
+      psubot_wheel_drive( WHEELS_DIRECTION_RIGHT, atoi( gac_args[2] ) );
+   } else if( shell_strcmp( "L", gac_args[1] ) ) {
+      psubot_wheel_drive( WHEELS_DIRECTION_LEFT, atoi( gac_args[2] ) );
+   } else if( shell_strcmp( "PR", gac_args[1] ) ) {
+      psubot_wheel_drive( WHEELS_DIRECTION_RIGHT_PIVOT, atoi( gac_args[2] ) );
+   } else if( shell_strcmp( "PL", gac_args[1] ) ) {
+      psubot_wheel_drive( WHEELS_DIRECTION_LEFT_PIVOT, atoi( gac_args[2] ) );
+   } else if( shell_strcmp( "F", gac_args[1] ) ) {
+      psubot_wheel_drive( WHEELS_DIRECTION_FORWARD, atoi( gac_args[2] ) );
+   } else if( shell_strcmp( "B", gac_args[1] ) ) {
+      psubot_wheel_drive( WHEELS_DIRECTION_REVERSE, atoi( gac_args[2] ) );
+   }
+}
+
+SHELL_COMMANDS_BLOCK_START( 4 )
+SHELL_COMMANDS_BLOCK_ITEM( "LED", "[EYE COLOR]", command_led ),
+SHELL_COMMANDS_BLOCK_ITEM( "EYE", "[POS] [INCR] OR [R/L] [INCR]", command_eye ),
+SHELL_COMMANDS_BLOCK_ITEM( "BEEP", "[FREQ] [TIME]", command_beep ),
+SHELL_COMMANDS_BLOCK_ITEM( "DRIVE", "[F/B/R/L/RP/LP] [TIME]", command_drive ),
 SHELL_COMMANDS_BLOCK_END()
 
