@@ -2,3 +2,4 @@ glob:*.o
 glob:*.o
 glob:*.out
 glob:*.txt
+glob:*.odp
