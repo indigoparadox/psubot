@@ -3,7 +3,7 @@ CC = msp430-gcc
 
 CFLAGS = -mmcu=msp430g2553 -Wall
 
-BASE_SYSTEM = psubot.o
+BASE_SYSTEM = psubot.o beep.o
 INTERACTIVE_SYSTEM = uart.o shell.o
 
 all: test
@@ -23,6 +23,9 @@ test_eyesense: test_eyesense.o $(BASE_SYSTEM)
 	$(CC) $(CFLAGS) -o $@.out $^
 
 test_eyemotion: test_eyemotion.o $(BASE_SYSTEM)
+	$(CC) $(CFLAGS) -o $@.out $^
+
+test_motors: test_motors.o
 	$(CC) $(CFLAGS) -o $@.out $^
 
 # = Generic Utility Definitions =
