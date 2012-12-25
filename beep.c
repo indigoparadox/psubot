@@ -1,7 +1,7 @@
 
 #include "beep.h"
 
-#include <msp430g2553.h>
+#include <msp430.h>
 
 void beep_init( void ) {
 

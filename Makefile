@@ -6,7 +6,7 @@ CFLAGS = -mmcu=msp430g2553 -Wall
 BASE_SYSTEM = psubot.o beep.o
 INTERACTIVE_SYSTEM = uart.o shell.o
 
-all: test
+all: test_bluetooth
 
 # test: A general test/debug suite.
 test: test.o $(BASE_SYSTEM) $(INTERACTIVE_SYSTEM)
