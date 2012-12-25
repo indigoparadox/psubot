@@ -22,15 +22,24 @@ typedef int BOOL;
 #define FALSE 0
 #endif /* FALSE */
 
+#define WHEELS_DIRECTION_FORWARD       1
+#define WHEELS_DIRECTION_REVERSE       2
+#define WHEELS_DIRECTION_RIGHT         3
+#define WHEELS_DIRECTION_RIGHT_PIVOT   4
+#define WHEELS_DIRECTION_LEFT          5
+#define WHEELS_DIRECTION_LEFT_PIVOT    6
+
 /* IO Ports: Port 1 */
 
 #define ILED      BIT0
+
+#define EYE_SENSE BIT3
 
 /* Eye directions are from the robot's point of view. */
 #define EYE_R     BIT4
 #define EYE_L     BIT5
 
-#define SPEAKER   BIT7
+#define WHEEL_R_F BIT6
 
 /* IO Ports: Port 2 */
 
@@ -38,7 +47,9 @@ typedef int BOOL;
 #define LED_GREEN BIT1
 #define LED_BLUE  BIT2
 
-#define EYE_SENSE BIT3
+#define WHEEL_R_R BIT5
+#define WHEEL_L_R BIT4
+#define WHEEL_L_F BIT3
 
 /* Configuration */
 
@@ -53,6 +64,7 @@ void psubot_eye_enable( void );
 void psubot_eye_pos( int );
 void psubot_eye_left( int );
 void psubot_eye_right( int );
+void psubot_wheel_drive( int, int );
 void psubot_wait( void );
 void psubot_halt( void );
 

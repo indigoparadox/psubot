@@ -33,6 +33,11 @@ void psubot_eye_enable( void ) {
    P2DIR |= LED_BLUE;
 }
 
+void psubot_wheels_enable( void ) {
+   P1DIR |= WHEEL_R_F;
+   P2DIR |= WHEEL_L_F | WHEEL_L_R | WHEEL_R_R;
+}
+
 /* Parameters:                                                                *
  *    i_pos_in - The percentage to the left to position the eye.              */
 void psubot_eye_pos( int i_pos_in ) {
@@ -102,6 +107,46 @@ void psubot_eye_right( int i_pos_in ) {
    /* TODO: Use a timer for this? */
    for( i = 0 ; i < l_target_pos ; i++ ) {}
    P1OUT &= ~EYE_R;
+}
+
+void psubot_wheel_drive( int i_direction_in, int i_len_in ) {
+   uint8_t i_direction_pin_p1 = 0,
+      i_direction_pin_p2 = 0;
+   int i;
+
+   switch( i_direction_in ) {
+      case WHEELS_DIRECTION_FORWARD:
+         i_direction_pin_p1 |= WHEEL_R_F;
+         i_direction_pin_p2 |= WHEEL_L_F;
+         break;
+      case WHEELS_DIRECTION_REVERSE:
+         i_direction_pin_p2 |= WHEEL_L_R | WHEEL_R_R;
+         break;
+      case WHEELS_DIRECTION_RIGHT:
+         i_direction_pin_p2 |= WHEEL_L_F;
+         break;
+      case WHEELS_DIRECTION_RIGHT_PIVOT:
+         i_direction_pin_p2 |= WHEEL_L_F | WHEEL_R_R;
+         break;
+      case WHEELS_DIRECTION_LEFT:
+         i_direction_pin_p1 |= WHEEL_R_F;
+         break;
+      case WHEELS_DIRECTION_LEFT_PIVOT:
+         i_direction_pin_p1 |= WHEEL_R_F;
+         i_direction_pin_p2 |= WHEEL_L_R;
+         break;
+      default:
+         return;
+   }
+
+   /* Execute the pin configuration for the specified time. */
+   P1OUT |= i_direction_pin_p1;
+   P2OUT |= i_direction_pin_p2;
+   /* TODO: Use a timer for this? */
+   for( i = 0 ; i < 10000 ; i++ ) {}
+
+   P1OUT &= ~WHEEL_R_F;
+   P2OUT &= ~WHEEL_L_F & ~WHEEL_R_R & ~WHEEL_L_R;
 }
 
 /* Purpose: Halt all activity and blink the internal LED.                     */
