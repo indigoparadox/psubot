@@ -3,20 +3,32 @@
 
 #include <stdint.h>
 
-/* TODO: Keep a global variable with the current position of the eye. Set it  *
- *       to 0 during the eye init phase and increment/decrement it whenever   *
- *       the eye is moved. Don't allow the eye to move out of its operational *
- *       range.                                                               */
-
 //int gi_debounce_counter_button = 0;
 BOOL gb_sleeping = 0;
 int gi_eye_move_loops = 0;
+DRIVING_DIR ge_driving_dir = DRIVING_STOPPED;
 
 void psubot_init( void ) {
 
    /* Turn off all indicators.*/
    P1OUT = 0;
    P2OUT = 0;
+
+   #if 0
+   /* This should be used on button inputs to debounce or something,          *
+    * probably. Our original intention was to use it to control wheel drivine *
+    * before we switched to the new continuous driving model. The timer       *
+    * itself conflicts with the low power modes.                              */
+
+   /* Enable the maintenance timer. */
+   WDTCTL = WDTPW | WDTTMSEL | WDTCNTCL;
+   /* WDTCTL = WDT_ADLY_1000; */
+   IE1 |= WDTIFG;
+   /* BCSCTL2 = DIVS_2; */
+   _EINT();
+   #else
+   WDTCTL = WDTPW | WDTHOLD;
+   #endif
 }
 
 void psubot_eye_enable( void ) {
@@ -42,6 +54,12 @@ void psubot_wheels_enable( void ) {
  *    i_pos_in - The percentage to the left to position the eye.              */
 void psubot_eye_pos( int i_pos_in ) {
    uint8_t i_sense_count = 0;
+   long l_target_pos,
+      l_pos_in = i_pos_in,
+      i;
+
+   /* Figure out the position as a percentage of the eye's max range. */
+   l_target_pos = l_pos_in * EYE_MAX_CYCLES_L / 100;
 
    /* Move the eye to position zero. */
    P1OUT |= EYE_R;
@@ -69,84 +87,58 @@ void psubot_eye_pos( int i_pos_in ) {
       gi_eye_move_loops = 0;
    }
 
-   psubot_eye_left( i_pos_in );
+   psubot_eye_move( EYE_LEFT );
+   for( i = 0 ; i < l_target_pos ; i++ ) {}
+   psubot_eye_move( EYE_STOPPED );
 }
 
 /* Purpose: Push the eye to the robot's left by the given increment.          */
-void psubot_eye_left( int i_pos_in ) {
-   long l_target_pos,
-      l_pos_in = i_pos_in,
-      i;
-
-   l_target_pos = l_pos_in * EYE_MAX_CYCLES_L / 100;
-
-   #if 0
-   char ac_pos_out[5] = { '\0' };
-   uart_echo( "\n\rOUT: " );
-   uart_echo( ltoa( l_target_pos, ac_pos_out, 10 ) );
-   uart_echo( "\n\r" );
-   #endif
-
-   /* Move the eye to the selected position. */
-   P1OUT |= EYE_L;
-   /* TODO: Use a timer for this? */
-   for( i = 0 ; i < l_target_pos ; i++ ) {}
-   P1OUT &= ~EYE_L;
+/* TODO: Keep a global variable with the current position of the eye. Set it  *
+ *       to 0 during the eye init phase and increment/decrement it whenever   *
+ *       the eye is moved. Don't allow the eye to move out of its operational *
+ *       range.                                                               */
+void psubot_eye_move( EYE_DIR e_eye_dir_in ) {
+   switch( e_eye_dir_in ) {
+      case EYE_RIGHT:
+         P1OUT |= EYE_R;
+         break;
+      case EYE_LEFT:
+         P1OUT |= EYE_L;
+         break;
+      case EYE_STOPPED:
+         P1OUT &= ~EYE_L & ~EYE_R;
+         break;
+   }
 }
 
-/* Purpose: Push the eye to the robot's right by the given increment.         */
-void psubot_eye_right( int i_pos_in ) {
-   long l_target_pos,
-      l_pos_in = i_pos_in,
-      i;
-
-   l_target_pos = l_pos_in * EYE_MAX_CYCLES_L / 100;
-
-   /* Move the eye to the selected position. */
-   P1OUT |= EYE_R;
-   /* TODO: Use a timer for this? */
-   for( i = 0 ; i < l_target_pos ; i++ ) {}
-   P1OUT &= ~EYE_R;
-}
-
-void psubot_wheel_drive( int i_direction_in, int i_len_in ) {
-   uint8_t i_direction_pin_p1 = 0,
-      i_direction_pin_p2 = 0;
-   int i;
-
-   switch( i_direction_in ) {
-      case WHEELS_DIRECTION_FORWARD:
-         i_direction_pin_p1 |= WHEEL_R_F;
-         i_direction_pin_p2 |= WHEEL_L_F;
+void psubot_wheel_drive( DRIVING_DIR e_direction_in ) {
+   switch( e_direction_in ) {
+      case DRIVING_FORWARD:
+         P1OUT |= WHEEL_R_F;
+         P2OUT |= WHEEL_L_F;
          break;
-      case WHEELS_DIRECTION_REVERSE:
-         i_direction_pin_p2 |= WHEEL_L_R | WHEEL_R_R;
+      case DRIVING_REVERSE:
+         P2OUT |= WHEEL_L_R | WHEEL_R_R;
          break;
-      case WHEELS_DIRECTION_RIGHT:
-         i_direction_pin_p2 |= WHEEL_L_F;
+      case DRIVING_RIGHT:
+         P2OUT |= WHEEL_L_F;
          break;
-      case WHEELS_DIRECTION_RIGHT_PIVOT:
-         i_direction_pin_p2 |= WHEEL_L_F | WHEEL_R_R;
+      case DRIVING_RIGHT_PIVOT:
+         P2OUT |= WHEEL_L_F | WHEEL_R_R;
          break;
-      case WHEELS_DIRECTION_LEFT:
-         i_direction_pin_p1 |= WHEEL_R_F;
+      case DRIVING_LEFT:
+         P1OUT |= WHEEL_R_F;
          break;
-      case WHEELS_DIRECTION_LEFT_PIVOT:
-         i_direction_pin_p1 |= WHEEL_R_F;
-         i_direction_pin_p2 |= WHEEL_L_R;
+      case DRIVING_LEFT_PIVOT:
+         P1OUT |= WHEEL_R_F;
+         P2OUT |= WHEEL_L_R;
          break;
+      case DRIVING_STOPPED:
+         P1OUT &= ~WHEEL_R_F;
+         P2OUT &= ~WHEEL_L_F & ~WHEEL_R_R & ~WHEEL_L_R;
       default:
          return;
    }
-
-   /* Execute the pin configuration for the specified time. */
-   P1OUT |= i_direction_pin_p1;
-   P2OUT |= i_direction_pin_p2;
-   /* TODO: Use a timer for this? */
-   for( i = 0 ; i < 10000 ; i++ ) {}
-
-   P1OUT &= ~WHEEL_R_F;
-   P2OUT &= ~WHEEL_L_F & ~WHEEL_R_R & ~WHEEL_L_R;
 }
 
 /* Purpose: Halt all activity and blink the internal LED.                     */
@@ -170,4 +162,13 @@ void psubot_halt( void ) {
       __delay_cycles( 250000 );
    }
 }
+
+#if 0
+/* See WDT notes above. */
+#pragma vector=WDT_VECTOR
+__interrupt void psubot_wdt_isr( void ) {
+   P1OUT ^= BIT0;
+   IFG1 &= ~WDTIFG;
+}
+#endif
 
