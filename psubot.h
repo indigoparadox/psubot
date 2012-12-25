@@ -22,12 +22,12 @@ typedef int BOOL;
 #define FALSE 0
 #endif /* FALSE */
 
-#define WHEELS_DIRECTION_FORWARD       1
+/* #define WHEELS_DIRECTION_FORWARD       1
 #define WHEELS_DIRECTION_REVERSE       2
 #define WHEELS_DIRECTION_RIGHT         3
 #define WHEELS_DIRECTION_RIGHT_PIVOT   4
 #define WHEELS_DIRECTION_LEFT          5
-#define WHEELS_DIRECTION_LEFT_PIVOT    6
+#define WHEELS_DIRECTION_LEFT_PIVOT    6 */
 
 /* IO Ports: Port 1 */
 
@@ -51,6 +51,22 @@ typedef int BOOL;
 #define WHEEL_L_R BIT4
 #define WHEEL_L_F BIT3
 
+typedef enum {
+   DRIVING_STOPPED,
+   DRIVING_FORWARD,
+   DRIVING_REVERSE,
+   DRIVING_RIGHT,
+   DRIVING_LEFT,
+   DRIVING_RIGHT_PIVOT,
+   DRIVING_LEFT_PIVOT
+} DRIVING_DIR;
+
+typedef enum {
+   EYE_RIGHT,
+   EYE_LEFT,
+   EYE_STOPPED
+} EYE_DIR;
+
 /* Configuration */
 
 #define EYE_MAX_CYCLES_L 10500
@@ -61,10 +77,10 @@ typedef int BOOL;
 void psubot_init( void );
 void psubot_button_enable( void );
 void psubot_eye_enable( void );
+void psubot_wheels_enable( void );
 void psubot_eye_pos( int );
-void psubot_eye_left( int );
-void psubot_eye_right( int );
-void psubot_wheel_drive( int, int );
+void psubot_eye_move( EYE_DIR );
+void psubot_wheel_drive( DRIVING_DIR );
 void psubot_wait( void );
 void psubot_halt( void );
 

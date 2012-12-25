@@ -20,24 +20,46 @@ if None == gamepad:
 print "Ready!"
 
 gamepad_buttons = {
-   0: lambda: psubot_command( 'LED RED' ),
-   1: lambda: psubot_command( 'LED GREEN' ),
-   2: lambda: psubot_command( 'LED BLUE' ),
-   3: lambda: psubot_command( 'BEEP 100 100' ),
-   4: lambda: psubot_command( 'EYE L 10' ),
-   5: lambda: psubot_command( 'EYE R 10' ),
-   6: lambda: psubot_command( 'DRIVE PL 10000' ),
-   7: lambda: psubot_command( 'DRIVE PR 10000' ),
+   0: {
+      'down': lambda: psubot_command( 'LED RED' ),
+   },
+   1: { 
+      'down': lambda: psubot_command( 'LED GREEN' ),
+   },
+   2: {
+      'down': lambda: psubot_command( 'LED BLUE' ),
+   },
+   3: {
+      'down': lambda: psubot_command( 'BEEP 100 100' ),
+   },
+   4: {
+      'down': lambda: psubot_command( 'EYE L' ),
+      'up': lambda: psubot_command( 'EYE S' ),
+   },
+   5: {
+      'down': lambda: psubot_command( 'EYE R' ),
+      'up': lambda: psubot_command( 'EYE S' ),
+   },
+   6: {
+      'down': lambda: psubot_command( 'DRIVE PL' ),
+      'up': lambda: psubot_command( 'DRIVE S' ),
+   },
+   7: {
+      'down': lambda: psubot_command( 'DRIVE PR' ),
+      'up': lambda: psubot_command( 'DRIVE S' ),
+   }
 }
 
 gamepad_axes = {
    3: { 
-      -1.0: lambda: psubot_command( 'DRIVE L 10000' ),
-      1.0: lambda: psubot_command( 'DRIVE R 10000' ),
+      -1.0: lambda: psubot_command( 'DRIVE L' ),
+      1.0: lambda: psubot_command( 'DRIVE R' ),
+      0.0: lambda: psubot_command( 'DRIVE S' ),
    },
    4: {
-      -1.0: lambda: psubot_command( 'DRIVE F 10000' ),
-      1.0: lambda: psubot_command( 'DRIVE B 10000' ),
+      -1.0: lambda: psubot_command( 'DRIVE F' ),
+      1.0: lambda: psubot_command( 'DRIVE B' ),
+      0.0: lambda: psubot_command( 'DRIVE S' ),
    },
 }
 
@@ -67,7 +89,21 @@ try:
             print i'''
 
       if event.type == pygame.JOYBUTTONDOWN:
-         action = gamepad_buttons.get( event.button )
+         action = None
+         try:
+            action = gamepad_buttons.get( event.button )['down']
+         except KeyError:
+            print event.button
+         if None != action:
+            action()
+         else:
+            print event.button
+      if event.type == pygame.JOYBUTTONUP:
+         action = None
+         try:
+            action = gamepad_buttons.get( event.button )['up']
+         except KeyError:
+            print event.button
          if None != action:
             action()
          else:

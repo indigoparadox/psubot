@@ -13,12 +13,11 @@ SHELL_ENABLE();
 int i_led_current = LED_RED;
 
 int main( void ) {
-   WDTCTL = WDTPW + WDTHOLD;
 
    psubot_init();
 
    psubot_eye_enable();
-   //psubot_eye_pos( 50 );
+   psubot_eye_pos( 50 );
 
    psubot_wheels_enable();
 
@@ -29,21 +28,22 @@ int main( void ) {
    beep_init();
 
    // TODO: Check to see if we're connected.
-   uart_echo( "\r\n+STWMOD=0\r\n" );
+   /*uart_echo( "\r\n+STWMOD=0\r\n" );
    uart_echo( "\r\n+STNA=PSUBot\r\n" );
    uart_echo( "\r\n+STPIN=2222\r\n" );
    uart_echo( "\r\n+STOAUT=1\r\n" );
 
    __delay_cycles( 500000 );
    uart_echo( "\r\n+INQ=1\r\n" );
-   __delay_cycles( 500000 );
+   __delay_cycles( 500000 );*/
 
    beep( 40, 250 );
 
    shell_init();
 
    /* Go to sleep. */
-   __bis_SR_register( LPM3_bits + GIE );
+   /* TODO: Find a way to sleep without disabling the maintenance timer. */
+   __bis_SR_register( LPM0_bits + GIE );
 
    return 0;
 }
@@ -82,9 +82,11 @@ void command_eye( void ) {
    if( shell_strcmp( "POS", gac_args[1] ) ) {
       psubot_eye_pos( atoi( gac_args[2] ) );
    } else if( shell_strcmp( "R", gac_args[1] ) ) {
-      psubot_eye_right( atoi( gac_args[2] ) );
+      psubot_eye_move( EYE_RIGHT );
    } else if( shell_strcmp( "L", gac_args[1] ) ) {
-      psubot_eye_left( atoi( gac_args[2] ) );
+      psubot_eye_move( EYE_LEFT );
+   } else if( shell_strcmp( "S", gac_args[1] ) ) {
+      psubot_eye_move( EYE_STOPPED );
    }
 }
 
@@ -94,17 +96,19 @@ void command_beep( void ) {
 
 void command_drive( void ) {
    if( shell_strcmp( "R", gac_args[1] ) ) {
-      psubot_wheel_drive( WHEELS_DIRECTION_RIGHT, atoi( gac_args[2] ) );
+      psubot_wheel_drive( DRIVING_RIGHT );
    } else if( shell_strcmp( "L", gac_args[1] ) ) {
-      psubot_wheel_drive( WHEELS_DIRECTION_LEFT, atoi( gac_args[2] ) );
+      psubot_wheel_drive( DRIVING_LEFT );
    } else if( shell_strcmp( "PR", gac_args[1] ) ) {
-      psubot_wheel_drive( WHEELS_DIRECTION_RIGHT_PIVOT, atoi( gac_args[2] ) );
+      psubot_wheel_drive( DRIVING_RIGHT_PIVOT );
    } else if( shell_strcmp( "PL", gac_args[1] ) ) {
-      psubot_wheel_drive( WHEELS_DIRECTION_LEFT_PIVOT, atoi( gac_args[2] ) );
+      psubot_wheel_drive( DRIVING_LEFT_PIVOT );
    } else if( shell_strcmp( "F", gac_args[1] ) ) {
-      psubot_wheel_drive( WHEELS_DIRECTION_FORWARD, atoi( gac_args[2] ) );
+      psubot_wheel_drive( DRIVING_FORWARD );
    } else if( shell_strcmp( "B", gac_args[1] ) ) {
-      psubot_wheel_drive( WHEELS_DIRECTION_REVERSE, atoi( gac_args[2] ) );
+      psubot_wheel_drive( DRIVING_REVERSE );
+   } else if( shell_strcmp( "S", gac_args[1] ) ) {
+      psubot_wheel_drive( DRIVING_STOPPED );
    }
 }
 
