@@ -1,5 +1,5 @@
 
-#include <msp430g2553.h>
+#include <msp430.h>
 
 #include "psubot.h"
 #include "uart.h"
@@ -28,6 +28,7 @@ int main( void ) {
 
    beep_init();
 
+   // TODO: Check to see if we're connected.
    uart_echo( "\r\n+STWMOD=0\r\n" );
    uart_echo( "\r\n+STNA=PSUBot\r\n" );
    uart_echo( "\r\n+STPIN=2222\r\n" );
@@ -41,10 +42,8 @@ int main( void ) {
 
    shell_init();
 
-   for( ; ; ) {
-      /* Go to sleep. */
-      __bis_SR_register( LPM3_bits + GIE );
-   }
+   /* Go to sleep. */
+   __bis_SR_register( LPM3_bits + GIE );
 
    return 0;
 }
