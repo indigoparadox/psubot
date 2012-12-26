@@ -37,9 +37,13 @@ int main( void ) {
    uart_echo( "\r\n+INQ=1\r\n" );
    __delay_cycles( 500000 );*/
 
-   beep( 40, 250 );
-
    shell_init();
+
+   /* Play a little tune to signal we're ready. */
+   BEEP_NOTE gae_startup[4] = {
+      BEEP_C, BEEP_E, BEEP_D, BEEP_NULL
+   };
+   beep_string( &gae_startup, 100 );
 
    /* Go to sleep. */
    /* TODO: Find a way to sleep without disabling the maintenance timer. */
