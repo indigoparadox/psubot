@@ -5,6 +5,9 @@ import serial, time
 
 pygame.init()
 
+gamepad_buttons = {}
+gamepad_axes = {}
+
 gamepad = None
 for i in range( 0, pygame.joystick.get_count() ):
    j = pygame.joystick.Joystick( i )
@@ -13,55 +16,56 @@ for i in range( 0, pygame.joystick.get_count() ):
       gamepad = j
       gamepad.init()
 
+      gamepad_buttons = {
+         0: {
+            'down': lambda: psubot_command( 'LED RED' ),
+         },
+         1: { 
+            'down': lambda: psubot_command( 'LED GREEN' ),
+         },
+         2: {
+            'down': lambda: psubot_command( 'LED BLUE' ),
+         },
+         3: {
+            'down': lambda: psubot_command( 'BEEP 100 100' ),
+         },
+         4: {
+            'down': lambda: psubot_command( 'EYE L' ),
+            'up': lambda: psubot_command( 'EYE S' ),
+         },
+         5: {
+            'down': lambda: psubot_command( 'EYE R' ),
+            'up': lambda: psubot_command( 'EYE S' ),
+         },
+         6: {
+            'down': lambda: psubot_command( 'DRIVE PL' ),
+            'up': lambda: psubot_command( 'DRIVE S' ),
+         },
+         7: {
+            'down': lambda: psubot_command( 'DRIVE PR' ),
+            'up': lambda: psubot_command( 'DRIVE S' ),
+         }
+      }
+
+      gamepad_axes = {
+         3: { 
+            -1.0: lambda: psubot_command( 'DRIVE L' ),
+            1.0: lambda: psubot_command( 'DRIVE R' ),
+            0.0: lambda: psubot_command( 'DRIVE S' ),
+         },
+         4: {
+            -1.0: lambda: psubot_command( 'DRIVE F' ),
+            1.0: lambda: psubot_command( 'DRIVE B' ),
+            0.0: lambda: psubot_command( 'DRIVE S' ),
+         },
+      }
+
+
 if None == gamepad:
    print "Joystick not found!"
    die()
 
 print "Ready!"
-
-gamepad_buttons = {
-   0: {
-      'down': lambda: psubot_command( 'LED RED' ),
-   },
-   1: { 
-      'down': lambda: psubot_command( 'LED GREEN' ),
-   },
-   2: {
-      'down': lambda: psubot_command( 'LED BLUE' ),
-   },
-   3: {
-      'down': lambda: psubot_command( 'BEEP 100 100' ),
-   },
-   4: {
-      'down': lambda: psubot_command( 'EYE L' ),
-      'up': lambda: psubot_command( 'EYE S' ),
-   },
-   5: {
-      'down': lambda: psubot_command( 'EYE R' ),
-      'up': lambda: psubot_command( 'EYE S' ),
-   },
-   6: {
-      'down': lambda: psubot_command( 'DRIVE PL' ),
-      'up': lambda: psubot_command( 'DRIVE S' ),
-   },
-   7: {
-      'down': lambda: psubot_command( 'DRIVE PR' ),
-      'up': lambda: psubot_command( 'DRIVE S' ),
-   }
-}
-
-gamepad_axes = {
-   3: { 
-      -1.0: lambda: psubot_command( 'DRIVE L' ),
-      1.0: lambda: psubot_command( 'DRIVE R' ),
-      0.0: lambda: psubot_command( 'DRIVE S' ),
-   },
-   4: {
-      -1.0: lambda: psubot_command( 'DRIVE F' ),
-      1.0: lambda: psubot_command( 'DRIVE B' ),
-      0.0: lambda: psubot_command( 'DRIVE S' ),
-   },
-}
 
 # Try to connect to the psubot.
 serial_psubot = serial.Serial( '/dev/rfcomm0', 9600, timeout=1 );
