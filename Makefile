@@ -33,8 +33,11 @@ test_motors: test_motors.o
 %.o: %.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-flash: $(FLASH)
-	mspdebug rf2500 "prog ./$(FLASH).out"
+#flash: $(FLASH)
+#	mspdebug rf2500 "prog ./$(FLASH).out"
+
+flash:
+	mspdebug rf2500 "prog ./test_bluetooth.out"
 
 clean:
 	rm *.o
