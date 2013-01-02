@@ -82,18 +82,20 @@ if None == gamepad:
    print "Joystick not found!"
    die()
 
-try:
-   btsocket = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
-   btsocket.connect( (psubot_address, 1) ) 
-except bluetooth.btcommon.BluetoothError:
-   print "Unable to establish connection!"
-   exit( 1 )
+#try:
+btsocket = bluetooth.BluetoothSocket( bluetooth.RFCOMM )
+btsocket.connect( (psubot_address, 1) ) 
+#except bluetooth.btcommon.BluetoothError:
+#   print "Unable to establish connection!"
+#   exit( 1 )
 
 print "Connection established. Please press the reset button on the PSUBot."
 
+print btsocket.recv( 1024 )
+
 # TODO: Wait for READY prompt.
 
-print "Ready!"
+print "Ready! Press CTRL-C to exit."
 
 def psubot_command( command_in ):
    global btsocket
@@ -135,8 +137,8 @@ try:
          else:
             print event.value
             print event.axis
-         
 
 except KeyboardInterrupt:
+   btsocket.close()
    gamepad.quit()
 
