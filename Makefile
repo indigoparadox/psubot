@@ -3,7 +3,7 @@ CC = msp430-gcc
 
 CFLAGS = -mmcu=msp430g2553 -Wall -include botdefs/$(BOT)/config.h
 
-BASE_SYSTEM = botlib.o beep.o
+BASE_SYSTEM = botlib.o beep.o pins.o eye.o drive.o
 INTERACTIVE_SYSTEM = uart.o shell.o
 
 all: psubot

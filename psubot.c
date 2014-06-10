@@ -1,10 +1,13 @@
 
 #include <msp430.h>
 
+#include "core.h"
 #include "botlib.h"
 #include "uart.h"
 #include "shell.h"
 #include "beep.h"
+#include "eye.h"
+#include "drive.h"
 
 #include <stdlib.h>
 
@@ -16,10 +19,10 @@ int main( void ) {
 
    psubot_init();
 
-   psubot_eye_enable();
-   psubot_eye_pos( 50 );
+   eye_enable();
+   eye_pos( 50 );
 
-   psubot_wheels_enable();
+   drive_wheels_enable();
 
    P2OUT = i_led_current;
 
@@ -85,13 +88,13 @@ void command_led( void ) {
 
 void command_eye( void ) {
    if( shell_strcmp( "POS", gac_args[1] ) ) {
-      psubot_eye_pos( atoi( gac_args[2] ) );
+      eye_pos( atoi( gac_args[2] ) );
    } else if( shell_strcmp( "R", gac_args[1] ) ) {
-      psubot_eye_move( EYE_RIGHT );
+      eye_move( EYE_RIGHT );
    } else if( shell_strcmp( "L", gac_args[1] ) ) {
-      psubot_eye_move( EYE_LEFT );
+      eye_move( EYE_LEFT );
    } else if( shell_strcmp( "S", gac_args[1] ) ) {
-      psubot_eye_move( EYE_STOPPED );
+      eye_move( EYE_STOPPED );
    }
 }
 
@@ -101,19 +104,19 @@ void command_beep( void ) {
 
 void command_drive( void ) {
    if( shell_strcmp( "R", gac_args[1] ) ) {
-      psubot_wheel_drive( DRIVING_RIGHT );
+      drive_wheel_drive( DRIVING_RIGHT );
    } else if( shell_strcmp( "L", gac_args[1] ) ) {
-      psubot_wheel_drive( DRIVING_LEFT );
+      drive_wheel_drive( DRIVING_LEFT );
    } else if( shell_strcmp( "PR", gac_args[1] ) ) {
-      psubot_wheel_drive( DRIVING_RIGHT_PIVOT );
+      drive_wheel_drive( DRIVING_RIGHT_PIVOT );
    } else if( shell_strcmp( "PL", gac_args[1] ) ) {
-      psubot_wheel_drive( DRIVING_LEFT_PIVOT );
+      drive_wheel_drive( DRIVING_LEFT_PIVOT );
    } else if( shell_strcmp( "F", gac_args[1] ) ) {
-      psubot_wheel_drive( DRIVING_FORWARD );
+      drive_wheel_drive( DRIVING_FORWARD );
    } else if( shell_strcmp( "B", gac_args[1] ) ) {
-      psubot_wheel_drive( DRIVING_REVERSE );
+      drive_wheel_drive( DRIVING_REVERSE );
    } else if( shell_strcmp( "S", gac_args[1] ) ) {
-      psubot_wheel_drive( DRIVING_STOPPED );
+      drive_wheel_drive( DRIVING_STOPPED );
    }
 }
 

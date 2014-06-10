@@ -21,6 +21,9 @@
 #define EYE_L_PORT      PORT1
 #define EYE_L           BIT5
 
+#define EYE_MAX_CYCLES_L 10500
+#define EYE_MAX_LOOPS_R 40000
+
 #define WHEEL_R_F_PORT  PORT1
 #define WHEEL_R_F       BIT6
 
@@ -32,6 +35,9 @@
 
 #define WHEEL_L_F_PORT  PORT2
 #define WHEEL_L_F       BIT3
+
+#define SPEAKER_PORT    PORT1
+#define SPEAKER         BIT7
 
 #define STARTUP_TUNE BEEP_C, BEEP_E, BEEP_D, BEEP_NULL
 
