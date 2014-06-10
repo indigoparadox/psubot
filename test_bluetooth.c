@@ -32,7 +32,7 @@ int main( void ) {
    uart_echo( "\r\n+STNA=PSUBot\r\n" );
    uart_echo( "\r\n+STAAUTO=1\r\n" );
    uart_echo( "\r\n+STOAUT=1\r\n" );
-   /*uart_echo( "\r\n+STPIN=0000\r\n" );*/
+   uart_echo( "\r\n+STPIN=0000\r\n" );
 
    __delay_cycles( 1000000 );
    uart_echo( "\r\n+INQ=1\r\n" );
