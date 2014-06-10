@@ -22,34 +22,6 @@ typedef int BOOL;
 #define FALSE 0
 #endif /* FALSE */
 
-/* #define WHEELS_DIRECTION_FORWARD       1
-#define WHEELS_DIRECTION_REVERSE       2
-#define WHEELS_DIRECTION_RIGHT         3
-#define WHEELS_DIRECTION_RIGHT_PIVOT   4
-#define WHEELS_DIRECTION_LEFT          5
-#define WHEELS_DIRECTION_LEFT_PIVOT    6 */
-
-/* IO Ports: Port 1 */
-
-#define ILED      BIT0
-
-#define EYE_SENSE BIT3
-
-/* Eye directions are from the robot's point of view. */
-#define EYE_R     BIT4
-#define EYE_L     BIT5
-
-#define WHEEL_R_F BIT6
-
-/* IO Ports: Port 2 */
-
-#define LED_RED   BIT0
-#define LED_GREEN BIT1
-#define LED_BLUE  BIT2
-
-#define WHEEL_R_R BIT5
-#define WHEEL_L_R BIT4
-#define WHEEL_L_F BIT3
 
 typedef enum {
    DRIVING_STOPPED,
@@ -67,6 +39,11 @@ typedef enum {
    EYE_STOPPED
 } EYE_DIR;
 
+typedef enum {
+   PORT1,
+   PORT2
+} PORT;
+
 /* Configuration */
 
 #define EYE_MAX_CYCLES_L 10500
@@ -75,6 +52,9 @@ typedef enum {
 /* = Function Prototypes = */
 
 void psubot_init( void );
+int _psubot_pin_in( PORT, int );
+void _psubot_pin_dir_or( PORT, int );
+void _psubot_pin_out_or( PORT, int );
 void psubot_button_enable( void );
 void psubot_eye_enable( void );
 void psubot_wheels_enable( void );
