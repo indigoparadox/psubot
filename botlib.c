@@ -31,23 +31,73 @@ void psubot_init( void ) {
    #endif
 }
 
+int _psubot_pin_in( PORT i_port_in, int i_bit_in ) {
+   switch( i_port_in ) {
+      case PORT1:
+         return P1IN & i_bit_in;
+
+      case PORT2:
+         return P2IN & i_bit_in;
+   }
+
+   return 0;
+}
+
+void _psubot_pin_dir_or( PORT i_port_in, int i_bit_in ) {
+   switch( i_port_in ) {
+      case PORT1:
+         P1DIR |= i_bit_in;
+         break;
+
+      case PORT2:
+         P2DIR |= i_bit_in;
+         break;
+   }
+}
+
+void _psubot_pin_out_or( PORT i_port_in, int i_bit_in ) {
+   switch( i_port_in ) {
+      case PORT1:
+         P1OUT |= i_bit_in;
+         break;
+
+      case PORT2:
+         P2OUT |= i_bit_in;
+         break;
+   }
+}
+
+void _psubot_pin_out_and( PORT i_port_in, int i_bit_in ) {
+   switch( i_port_in ) {
+      case PORT1:
+         P1OUT &= i_bit_in;
+         break;
+
+      case PORT2:
+         P2OUT &= i_bit_in;
+         break;
+   }
+}
+
 void psubot_eye_enable( void ) {
 
    /* Setup Motor I/O */
    P1DIR = 0;
-   P1DIR |= EYE_R;
-   P1DIR |= EYE_L;
+   _psubot_pin_dir_or( EYE_R_PORT, EYE_R );
+   _psubot_pin_dir_or( EYE_L_PORT, EYE_L );
    
    /* Setup LED I/O */
    P2DIR = 0;
-   P2DIR |= LED_RED;
-   P2DIR |= LED_GREEN;
-   P2DIR |= LED_BLUE;
+   _psubot_pin_dir_or( LED_RED_PORT, LED_RED );
+   _psubot_pin_dir_or( LED_GREEN_PORT, LED_GREEN );
+   _psubot_pin_dir_or( LED_BLUE_PORT, LED_BLUE );
 }
 
 void psubot_wheels_enable( void ) {
-   P1DIR |= WHEEL_R_F;
-   P2DIR |= WHEEL_L_F | WHEEL_L_R | WHEEL_R_R;
+   _psubot_pin_dir_or( WHEEL_R_F_PORT, WHEEL_R_F );
+   _psubot_pin_dir_or( WHEEL_L_F_PORT, WHEEL_L_F );
+   _psubot_pin_dir_or( WHEEL_L_R_PORT, WHEEL_L_R );
+   _psubot_pin_dir_or( WHEEL_R_R_PORT, WHEEL_R_R );
 }
 
 /* Parameters:                                                                *
@@ -62,9 +112,9 @@ void psubot_eye_pos( int i_pos_in ) {
    l_target_pos = l_pos_in * EYE_MAX_CYCLES_L / 100;
 
    /* Move the eye to position zero. */
-   P1OUT |= EYE_R;
+   _psubot_pin_out_or( EYE_R_PORT, EYE_R );
    while( 
-      !(P1IN & EYE_SENSE && i_sense_count >= 200) && 
+      !(_psubot_pin_in( EYE_SENSE_PORT, EYE_SENSE ) && i_sense_count >= 200) && 
       EYE_MAX_LOOPS_R > gi_eye_move_loops
    ) {
       __delay_cycles( 10 );
@@ -72,13 +122,13 @@ void psubot_eye_pos( int i_pos_in ) {
       
       /* Don't count the sensor as being held down unless it's being held     *
        * down!                                                                */
-      if( P1IN && EYE_SENSE ) {
+      if( _psubot_pin_in( EYE_SENSE_PORT, EYE_SENSE ) ) {
          i_sense_count++;
       } else {
          i_sense_count = 0;
       }
    }
-   P1OUT &= ~EYE_R;
+   _psubot_pin_out_and( EYE_R_PORT, ~EYE_R );
 
    /* Make sure we didn't just time out. */
    if( EYE_MAX_LOOPS_R <= gi_eye_move_loops ) {
@@ -100,13 +150,14 @@ void psubot_eye_pos( int i_pos_in ) {
 void psubot_eye_move( EYE_DIR e_eye_dir_in ) {
    switch( e_eye_dir_in ) {
       case EYE_RIGHT:
-         P1OUT |= EYE_R;
+         _psubot_pin_out_or( EYE_R_PORT, EYE_R );
          break;
       case EYE_LEFT:
-         P1OUT |= EYE_L;
+         _psubot_pin_out_or( EYE_L_PORT, EYE_L );
          break;
       case EYE_STOPPED:
-         P1OUT &= ~EYE_L & ~EYE_R;
+         _psubot_pin_out_and( EYE_L_PORT, ~EYE_L );
+         _psubot_pin_out_and( EYE_R_PORT, ~EYE_R );
          break;
    }
 }
@@ -114,28 +165,32 @@ void psubot_eye_move( EYE_DIR e_eye_dir_in ) {
 void psubot_wheel_drive( DRIVING_DIR e_direction_in ) {
    switch( e_direction_in ) {
       case DRIVING_FORWARD:
-         P1OUT |= WHEEL_R_F;
-         P2OUT |= WHEEL_L_F;
+         _psubot_pin_out_or( WHEEL_R_F_PORT, WHEEL_R_F );
+         _psubot_pin_out_or( WHEEL_L_F_PORT, WHEEL_L_F );
          break;
       case DRIVING_REVERSE:
-         P2OUT |= WHEEL_L_R | WHEEL_R_R;
+         _psubot_pin_out_or( WHEEL_L_R_PORT, WHEEL_L_R );
+         _psubot_pin_out_or( WHEEL_R_R_PORT, WHEEL_R_R );
          break;
       case DRIVING_RIGHT:
-         P2OUT |= WHEEL_L_F;
+         _psubot_pin_out_or( WHEEL_L_F_PORT, WHEEL_L_F );
          break;
       case DRIVING_RIGHT_PIVOT:
-         P2OUT |= WHEEL_L_F | WHEEL_R_R;
+         _psubot_pin_out_or( WHEEL_L_F_PORT, WHEEL_L_F );
+         _psubot_pin_out_or( WHEEL_R_R_PORT, WHEEL_R_R );
          break;
       case DRIVING_LEFT:
-         P1OUT |= WHEEL_R_F;
+         _psubot_pin_out_or( WHEEL_R_F_PORT, WHEEL_R_F );
          break;
       case DRIVING_LEFT_PIVOT:
-         P1OUT |= WHEEL_R_F;
-         P2OUT |= WHEEL_L_R;
+         _psubot_pin_out_or( WHEEL_R_F_PORT, WHEEL_R_F );
+         _psubot_pin_out_or( WHEEL_L_R_PORT, WHEEL_L_R );
          break;
       case DRIVING_STOPPED:
-         P1OUT &= ~WHEEL_R_F;
-         P2OUT &= ~WHEEL_L_F & ~WHEEL_R_R & ~WHEEL_L_R;
+         _psubot_pin_out_and( WHEEL_R_F_PORT, ~WHEEL_R_F );
+         _psubot_pin_out_and( WHEEL_L_F_PORT, ~WHEEL_L_F );
+         _psubot_pin_out_and( WHEEL_R_R_PORT, ~WHEEL_R_R );
+         _psubot_pin_out_and( WHEEL_L_R_PORT, ~WHEEL_L_R );
       default:
          return;
    }
@@ -154,11 +209,11 @@ void psubot_halt( void ) {
    P2OUT = 0;
 
    /* Blink indefinitely. */
-   P1DIR |= ILED;
+   _psubot_pin_dir_or( ILED_PORT, ILED );
    for(;;) {
-      P1OUT |= ILED;
+      _psubot_pin_out_or( ILED_PORT, ILED );
       __delay_cycles( 250000 );
-      P1OUT &= ~ILED;
+      _psubot_pin_out_and( ILED_PORT, ~ILED );
       __delay_cycles( 250000 );
    }
 }
