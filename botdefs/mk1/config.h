@@ -33,3 +33,5 @@
 #define WHEEL_L_F_PORT  PORT2
 #define WHEEL_L_F       BIT3
 
+#define STARTUP_TUNE BEEP_C, BEEP_E, BEEP_D, BEEP_NULL
+
