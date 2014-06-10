@@ -21,6 +21,7 @@ typedef enum {
 
 void beep_init( void );
 void beep( int, int );
+void beep_string( BEEP_NOTE*, int );
 
 #endif /* BEEP_H */
 
