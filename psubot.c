@@ -8,12 +8,11 @@
 #include "beep.h"
 #include "eye.h"
 #include "drive.h"
+#include "scheduler.h"
 
 #include <stdlib.h>
 
 SHELL_ENABLE();
-
-int i_led_current = LED_RED;
 
 int main( void ) {
 
@@ -24,7 +23,9 @@ int main( void ) {
 
    drive_wheels_enable();
 
-   P2OUT = i_led_current;
+   /* P2OUT = i_led_current; */
+
+   eye_glow( EYE_BLUE );
 
    uart_serial_init();
 
@@ -57,33 +58,13 @@ int main( void ) {
 }
 
 void command_led( void ) {
-   
    if( shell_strcmp( "RED", gac_args[1] ) ) {
-      i_led_current = LED_RED;
+      eye_glow( EYE_RED );
    } else if( shell_strcmp( "GREEN", gac_args[1] ) ) {
-      i_led_current = LED_GREEN;
+      eye_glow( EYE_GREEN );
    } else if( shell_strcmp( "BLUE", gac_args[1] ) ) {
-      i_led_current = LED_BLUE;
+      eye_glow( EYE_BLUE );
    }
-
-   #if 0
-   switch( i_led_current ) {
-      case LED_RED:
-         i_led_current = LED_GREEN;
-         break;
-
-      case LED_GREEN:
-         i_led_current = LED_BLUE;
-         break;
-
-      case LED_BLUE:
-         i_led_current = LED_RED;
-         break;
-
-   }
-   #endif
-
-   P2OUT = i_led_current;
 }
 
 void command_eye( void ) {

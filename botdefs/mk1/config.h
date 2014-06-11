@@ -2,14 +2,14 @@
 #define ILED_PORT       PORT1
 #define ILED            BIT0
 
-#define LED_RED_PORT    PORT2
-#define LED_RED         BIT0
+#define EYE_LED_RED_PORT    PORT2
+#define EYE_LED_RED         BIT0
 
-#define LED_GREEN_PORT  PORT2
-#define LED_GREEN       BIT1
+#define EYE_LED_GREEN_PORT  PORT2
+#define EYE_LED_GREEN       BIT1
 
-#define LED_BLUE_PORT   PORT2
-#define LED_BLUE        BIT2
+#define EYE_LED_BLUE_PORT   PORT2
+#define EYE_LED_BLUE        BIT2
 
 #define EYE_SENSE_PORT  PORT1
 #define EYE_SENSE       BIT3
@@ -40,4 +40,6 @@
 #define SPEAKER         BIT7
 
 #define STARTUP_TUNE BEEP_C, BEEP_E, BEEP_D, BEEP_NULL
+
+#define SCHEDULER_FREQ
 

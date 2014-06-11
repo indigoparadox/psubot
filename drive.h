@@ -3,6 +3,7 @@
 #define DRIVE_H
 
 #include "pins.h"
+#include "scheduler.h"
 
 /* = Constants = */
 
