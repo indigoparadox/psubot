@@ -15,17 +15,15 @@
 SHELL_ENABLE();
 
 int main( void ) {
+   BEEP_NOTE gae_startup[] = { STARTUP_TUNE };
 
    psubot_init();
 
    eye_enable();
+   eye_glow( EYE_RED, 100 );
    eye_pos( 50 );
 
    drive_wheels_enable();
-
-   /* P2OUT = i_led_current; */
-
-   eye_glow( EYE_BLUE );
 
    uart_serial_init();
 
@@ -47,8 +45,8 @@ int main( void ) {
    shell_init();
 
    /* Play a little tune to signal we're ready. */
-   BEEP_NOTE gae_startup[] = { STARTUP_TUNE };
    beep_string( gae_startup, 100 );
+   eye_glow( EYE_BLUE, 100 );
 
    /* Go to sleep. */
    /* TODO: Find a way to sleep without disabling the maintenance timer. */
@@ -59,11 +57,11 @@ int main( void ) {
 
 void command_led( void ) {
    if( shell_strcmp( "RED", gac_args[1] ) ) {
-      eye_glow( EYE_RED );
+      eye_glow( EYE_RED, 100 );
    } else if( shell_strcmp( "GREEN", gac_args[1] ) ) {
-      eye_glow( EYE_GREEN );
+      eye_glow( EYE_GREEN, 100 );
    } else if( shell_strcmp( "BLUE", gac_args[1] ) ) {
-      eye_glow( EYE_BLUE );
+      eye_glow( EYE_BLUE, 100 );
    }
 }
 
