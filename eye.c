@@ -2,6 +2,7 @@
 #include "eye.h"
 
 int gi_eye_move_loops = 0;
+EYE_COLOR gi_color_current = EYE_RED;
 
 void eye_enable( void ) {
 
@@ -12,9 +13,9 @@ void eye_enable( void ) {
    
    /* Setup LED I/O */
    P2DIR = 0;
-   pins_dir_or( LED_RED_PORT, LED_RED );
-   pins_dir_or( LED_GREEN_PORT, LED_GREEN );
-   pins_dir_or( LED_BLUE_PORT, LED_BLUE );
+   pins_dir_or( EYE_LED_RED_PORT, EYE_LED_RED );
+   pins_dir_or( EYE_LED_GREEN_PORT, EYE_LED_GREEN );
+   pins_dir_or( EYE_LED_BLUE_PORT, EYE_LED_BLUE );
 }
 
 /* Parameters:                                                                *
@@ -77,5 +78,14 @@ void eye_move( EYE_DIR e_eye_dir_in ) {
          pins_out_and( EYE_R_PORT, ~EYE_R );
          break;
    }
+}
+
+void eye_glow( EYE_COLOR i_color_in ) {
+   scheduler_add_thread( "eye_led", eye_glow_task );
+}
+
+void eye_glow_task( int i_arg_in ) {
+   static int i_led_duty_counter = 0;
+
 }
 
