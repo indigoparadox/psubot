@@ -49,3 +49,15 @@ void pins_out_and( PORT i_port_in, int i_bit_in ) {
    }
 }
 
+void pins_out_toggle( PORT i_port_in, int i_bit_in ) {
+   switch( i_port_in ) {
+      case PORT1:
+         P1OUT ^= i_bit_in;
+         break;
+
+      case PORT2:
+         P2OUT ^= i_bit_in;
+         break;
+   }
+}
+

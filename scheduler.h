@@ -32,6 +32,7 @@
 struct scheduler_task;
 struct scheduler_task {
    void (*task)( int, int* );
+   void (*shutdown)( int, int* );
    int argc;
    int* argi;
    char* id;
@@ -42,7 +43,10 @@ struct scheduler_task {
 
 void* scheduler_realloc( void*, size_t );
 int scheduler_count_threads( void );
-void scheduler_add_thread( char*, void (*thread_in)( int, int* ), int, int* );
+void scheduler_add_thread(
+   char*, void (*thread_in)( int, int* ), void (*shutdown_in)( int, int* ), int,
+   int*
+);
 void scheduler_del_thread( const char* );
 void scheduler_halt( void );
 
