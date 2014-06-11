@@ -1,10 +1,27 @@
 
+# = Feature Checks =
+
+BASE_SYSTEM = pins.o scheduler.o drive.o
+
+USE_EYE_CHECK=$(shell grep '^.define ENABLE_EYE' botdefs/$(BOT)/config.h 2>/dev/null)
+ifneq ($(USE_EYE_CHECK),)
+BASE_SYSTEM += eye.o
+endif
+
+USE_BEEP_CHECK=$(shell grep '^.define ENABLE_BEEP' botdefs/$(BOT)/config.h 2>/dev/null)
+ifneq ($(USE_BEEP_CHECK),)
+BASE_SYSTEM += beep.o
+endif
+
+USE_SHELL_CHECK=$(shell grep '^.define ENABLE_SHELL' botdefs/$(BOT)/config.h 2>/dev/null)
+ifneq ($(USE_SHELL_CHECK),)
+BASE_SYSTEM += shell.o uart.o
+endif
+
+CPU=$(shell grep '^.define CPU' botdefs/$(BOT)/config.h | awk '{print $$3}' 2>/dev/null)
+
 CC = msp430-gcc
-
-CFLAGS = -mmcu=msp430g2553 -Wall -include botdefs/$(BOT)/config.h
-
-BASE_SYSTEM = beep.o pins.o eye.o drive.o scheduler.o
-INTERACTIVE_SYSTEM = uart.o shell.o
+CFLAGS = -mmcu=$(CPU) -Wall -include botdefs/$(BOT)/config.h
 
 all: psubot
 

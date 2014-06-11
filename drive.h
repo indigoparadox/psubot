@@ -21,6 +21,8 @@ typedef enum {
 
 void drive_wheels_enable( void );
 void drive_wheel_drive( DRIVING_DIR );
+void drive_wheel_task( int, int* );
+void drive_wheel_shutdown( int, int* );
 
 #endif /* DRIVE_H */
 

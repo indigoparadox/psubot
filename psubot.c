@@ -2,10 +2,16 @@
 #include <msp430.h>
 
 #include "core.h"
-#include "uart.h"
+#ifdef ENABLE_SHELL
 #include "shell.h"
+#include "uart.h"
+#endif /* ENABLE_SHELL */
+#ifdef ENABLE_BEEP
 #include "beep.h"
+#endif /* ENABLE_BEEP */
+#ifdef ENABLE_EYE
 #include "eye.h"
+#endif /* ENABLE_EYE */
 #include "drive.h"
 #include "scheduler.h"
 
@@ -14,23 +20,34 @@
 SHELL_ENABLE();
 
 int main( void ) {
+   #ifdef ENABLE_BEEP
    BEEP_NOTE gae_startup[] = { STARTUP_TUNE };
+   #endif /* ENABLE_BEEP */
 
    WDTCTL = WDTPW | WDTHOLD;
    P1OUT = 0;
    P2OUT = 0;
 
+   #ifdef ENABLE_EYE
    eye_enable();
    eye_pos( 50 );
+   #endif /* ENABLE_EYE */
 
    drive_wheels_enable();
 
+   #ifdef ENABLE_SHELL
    uart_serial_init();
+   #endif /* ENABLE_SHELL */
 
+   #ifdef ENABLE_EYE
    eye_glow( EYE_RED, 1 );
+   #endif /* ENABLE_EYE */
 
+   #ifdef ENABLE_BEEP
    beep_init();
+   #endif /* ENABLE_BEEP */
 
+   #ifdef ENABLE_SHELL
    // TODO: Check to see if we're connected.
    uart_echo( "\r\n+STWMOD=0\r\n" );
    uart_echo( "\r\n+STNA=PSUBot\r\n" );
@@ -45,10 +62,16 @@ int main( void ) {
    /* uart_echo( "\r\n+CONN=00:10:C6:C3:E6:4D\r\n" ); */
 
    shell_init();
+   #endif /* ENABLE_SHELL */
 
+   #ifdef ENABLE_BEEP
    /* Play a little tune to signal we're ready. */
    beep_string( gae_startup, 100 );
+   #endif /* ENABLE_BEEP */
+
+   #ifdef ENABLE_EYE
    eye_glow( EYE_BLUE, EYE_DUTY_MAX );
+   #endif /* ENABLE_EYE */
 
    /* Go to sleep. */
    /* TODO: Find a way to sleep without disabling the maintenance timer. */
@@ -56,6 +79,10 @@ int main( void ) {
 
    return 0;
 }
+
+#ifdef ENABLE_SHELL
+
+#ifdef ENABLE_EYE
 
 void command_led( void ) {
    if( shell_strcmp( "RED", gac_args[1] ) ) {
@@ -79,9 +106,15 @@ void command_eye( void ) {
    }
 }
 
+#endif /* ENABLE_EYE */
+
+#ifdef ENABLE_BEEP
+
 void command_beep( void ) {
    beep( atoi( gac_args[1] ), atoi( gac_args[2] ) );
 }
+
+#endif /* ENABLE_BEEP */
 
 void command_drive( void ) {
    if( shell_strcmp( "R", gac_args[1] ) ) {
@@ -102,9 +135,15 @@ void command_drive( void ) {
 }
 
 SHELL_COMMANDS_BLOCK_START( 4 )
+#ifdef ENABLE_EYE
 SHELL_COMMANDS_BLOCK_ITEM( "LED", "[EYE COLOR]", command_led ),
 SHELL_COMMANDS_BLOCK_ITEM( "EYE", "[POS] [INCR] OR [R/L] [INCR]", command_eye ),
+#endif /* ENABLE_EYE */
+#ifdef ENABLE_BEEP
 SHELL_COMMANDS_BLOCK_ITEM( "BEEP", "[FREQ] [TIME]", command_beep ),
+#endif /* ENABLE_BEEP */
 SHELL_COMMANDS_BLOCK_ITEM( "DRIVE", "[F/B/R/L/RP/LP] [TIME]", command_drive ),
 SHELL_COMMANDS_BLOCK_END()
+
+#endif /* ENABLE_SHELL */
 

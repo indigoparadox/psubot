@@ -109,7 +109,9 @@ void scheduler_halt( void ) {
    /* Disable all interrupts. */
    P1IE = 0;
    P2IE = 0;
+   #ifdef IE2
    IE2 = 0;
+   #endif /* IE2 */
    TACTL = 0;
    CCTL0 = 0;
 

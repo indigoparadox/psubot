@@ -14,11 +14,18 @@ extern int gi_commands_count;
 char gac_args[SHELL_ARG_COUNT][SHELL_COMMAND_LEN];
 
 void shell_init( void ) {
+   #ifdef ENABLE_HW_SERIAL
+   /* Use hardware serial interface. */
+
    /* Enable UART RX interrupt. */
    IE2 |= UCA0RXIE;
 
    uart_echo( "\n\r" );
    uart_echo( SHELL_STRING_PROMPT );
+
+   #else
+   /* TODO: Use software serial approximation. */
+   #endif /* ENABLE_HW_SERIAL */
 }
 
 BOOL shell_strcmp( char* pc_string1_in, char* pc_string2_in ) {
@@ -37,6 +44,8 @@ BOOL shell_strcmp( char* pc_string1_in, char* pc_string2_in ) {
    return TRUE;
 }
 
+#ifdef ENABLE_SHELL_HELP
+
 void shell_command_help( void ) {
    uint8_t i;
 
@@ -47,6 +56,10 @@ void shell_command_help( void ) {
       uart_echo( "\r\n" );
    }
 }
+
+#endif /* ENABLE_SHELL_HELP */
+
+#ifdef ENABLE_HW_SERIAL
 
 #pragma vector=USCIAB0RX_VECTOR
 __interrupt void shell_uart0_isr( void ) {
@@ -131,4 +144,6 @@ __interrupt void shell_uart0_isr( void ) {
       }
    }
 }
+
+#endif /* ENABLE_HW_SERIAL */
 

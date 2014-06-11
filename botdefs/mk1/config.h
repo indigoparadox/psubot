@@ -1,4 +1,12 @@
 
+#define CPU msp430g2553
+
+#define ENABLE_EYE
+#define ENABLE_BEEP
+#define ENABLE_SHELL
+#define ENABLE_SHELL_HELP
+#define ENABLE_SERIAL_HW
+
 #define ILED_PORT       PORT1
 #define ILED            BIT0
 
@@ -40,6 +48,4 @@
 #define SPEAKER         BIT7
 
 #define STARTUP_TUNE BEEP_C, BEEP_E, BEEP_D, BEEP_NULL
-
-#define SCHEDULER_FREQ
 
