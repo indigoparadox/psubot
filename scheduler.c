@@ -3,27 +3,27 @@
 
 struct scheduler_task* gps_timer_tasks = NULL;
 
-int scheduler_count_threads( void ) {
+int scheduler_count_tasks( void ) {
    struct scheduler_task* ps_task_iter = gps_timer_tasks;
-   int i_thread_count = 0;
+   int i_task_count = 0;
 
    while( NULL != ps_task_iter ) {
-      i_thread_count++;
+      i_task_count++;
       ps_task_iter = ps_task_iter->next;
    }
 
-   return i_thread_count;
+   return i_task_count;
 }
 
-void scheduler_add_thread(
-   char* pc_id_in, void (*thread_in)( int, int* ),
+void scheduler_add_task(
+   char* pc_id_in, void (*task_in)( int, int* ),
    void (*shutdown_in)( int, int* ), int i_argc_in, int* pi_argi_in
 ) {
    struct scheduler_task* ps_task_new,
       * ps_task_iter;
 
-   /* Start the timer if a thread was added and none were present. */
-   if( 0 == scheduler_count_threads() ) {
+   /* Start the timer if a task was added and none were present. */
+   if( 0 == scheduler_count_tasks() ) {
       CCTL0 = CCIE;
       TACCR0 = 10000;
       TACTL = TASSEL_2 + MC_1;
@@ -33,7 +33,7 @@ void scheduler_add_thread(
    /* Create the new task. */
    ps_task_new = malloc( sizeof( struct scheduler_task ) );
    memset( ps_task_new, 0, sizeof( struct scheduler_task ) );
-   ps_task_new->task = thread_in;
+   ps_task_new->task = task_in;
    ps_task_new->shutdown = shutdown_in;
    ps_task_new->argc = i_argc_in;
    ps_task_new->argi = pi_argi_in;
@@ -51,11 +51,18 @@ void scheduler_add_thread(
    }
 }
 
-void scheduler_del_thread( const char* pc_id_in ) {
+void _scheduler_free_task( struct scheduler_task* ps_task_in ) {
+   free( ps_task_in->id );
+   free( ps_task_in->argi );
+   free( ps_task_in );
+   /* TODO: Do we free the task function pointer? */
+}
+
+void scheduler_del_task( const char* pc_id_in ) {
    struct scheduler_task* ps_task_iter = gps_timer_tasks,
       * ps_task_prev = NULL;
 
-   /* Remove the thread from the threads list. */
+   /* Remove the task from the tasks list. */
    while( NULL != ps_task_iter ) {
       if( 0 != strcmp( ps_task_iter->id, pc_id_in ) ) {
          continue;
@@ -72,21 +79,47 @@ void scheduler_del_thread( const char* pc_id_in ) {
       (*ps_task_iter->shutdown)( ps_task_iter->argc, ps_task_iter->argi );
 
       /* Free the task. */
-      free( ps_task_iter->id );
-      free( ps_task_iter->argi );
-      free( ps_task_iter );
-      /* TODO: Do we free the task function pointer? */
+      _scheduler_free_task( ps_task_iter );
 
       ps_task_prev = ps_task_iter;
       ps_task_iter = ps_task_iter->next;
    }
 
-   /* TODO: Shut off the timer if no threads are present. */
+   /* TODO: Shut off the timer if no tasks are present. */
 
 }
 
+/* Purpose: Halt all activity and blink the internal LED.                     */
 void scheduler_halt( void ) {
+   struct scheduler_task* ps_task_iter = gps_timer_tasks,
+      * ps_task_remove = NULL;
 
+   /* Remove all scheduled tasks. */
+   while( NULL != ps_task_iter ) {
+      ps_task_remove = ps_task_iter;
+      ps_task_iter = ps_task_iter->next;
+      _scheduler_free_task( ps_task_remove );
+   }
+   gps_timer_tasks = NULL;
+
+   /* Disable all interrupts. */
+   P1IE = 0;
+   P2IE = 0;
+   IE2 = 0;
+   TACTL = 0;
+
+   /* Turn off all outputs. */
+   P1OUT = 0;
+   P2OUT = 0;
+
+   /* Blink indefinitely. */
+   pins_dir_or( ILED_PORT, ILED );
+   for(;;) {
+      pins_out_or( ILED_PORT, ILED );
+      __delay_cycles( 250000 );
+      pins_out_and( ILED_PORT, ~ILED );
+      __delay_cycles( 250000 );
+   }
 }
 
 #pragma vector=TIMERA0_VECTOR

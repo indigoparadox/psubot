@@ -2,7 +2,6 @@
 #include <msp430.h>
 
 #include "core.h"
-#include "botlib.h"
 #include "uart.h"
 #include "shell.h"
 #include "beep.h"
@@ -17,7 +16,9 @@ SHELL_ENABLE();
 int main( void ) {
    BEEP_NOTE gae_startup[] = { STARTUP_TUNE };
 
-   psubot_init();
+   WDTCTL = WDTPW | WDTHOLD;
+   P1OUT = 0;
+   P2OUT = 0;
 
    eye_enable();
    eye_pos( 50 );
