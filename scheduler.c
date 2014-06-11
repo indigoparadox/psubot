@@ -85,7 +85,11 @@ void scheduler_del_task( const char* pc_id_in ) {
       ps_task_iter = ps_task_iter->next;
    }
 
-   /* TODO: Shut off the timer if no tasks are present. */
+   /* Shut off the timer if no tasks are present. */
+   if( 0 == scheduler_count_tasks() ) {
+      CCTL0 = 0;
+      TACTL = 0;
+   }
 
 }
 
@@ -107,6 +111,7 @@ void scheduler_halt( void ) {
    P2IE = 0;
    IE2 = 0;
    TACTL = 0;
+   CCTL0 = 0;
 
    /* Turn off all outputs. */
    P1OUT = 0;
