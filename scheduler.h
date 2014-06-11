@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "core.h"
+#include "pins.h"
 
 /* = TI Header Fixes = */
 
@@ -20,12 +21,6 @@
 #ifndef TIMERA0_VECTOR
 #define TIMERA0_VECTOR TIMER0_A0_VECTOR
 #endif /* TIMERA0_VECTOR */
-
-/* = Macros = */
-
-/* #define SCHEDULER_ENABLE() \
-   extern void* gi_timer_threads[]; \
-   extern char* gpc_timer_thread_ids[]; */
 
 /* = Structs = */
 
@@ -42,12 +37,12 @@ struct scheduler_task {
 /* = Function Prototypes = */
 
 void* scheduler_realloc( void*, size_t );
-int scheduler_count_threads( void );
-void scheduler_add_thread(
-   char*, void (*thread_in)( int, int* ), void (*shutdown_in)( int, int* ), int,
+int scheduler_count_tasks( void );
+void scheduler_add_task(
+   char*, void (*task_in)( int, int* ), void (*shutdown_in)( int, int* ), int,
    int*
 );
-void scheduler_del_thread( const char* );
+void scheduler_del_task( const char* );
 void scheduler_halt( void );
 
 #endif /* SCHEDULER_H */

@@ -49,7 +49,7 @@ void eye_pos( int i_pos_in ) {
 
    /* Make sure we didn't just time out. */
    if( EYE_MAX_LOOPS_R <= gi_eye_move_loops ) {
-      psubot_halt();
+      scheduler_halt();
    } else {
       gi_eye_move_loops = 0;
    }
@@ -98,8 +98,8 @@ void eye_glow( EYE_COLOR i_color_in, int i_brightness_in ) {
          break;
    }
    pi_args_out[2] = i_brightness_in;
-   scheduler_del_thread( "eye_led" );
-   scheduler_add_thread(
+   scheduler_del_task( "eye_led" );
+   scheduler_add_task(
       "eye_led", eye_glow_task, eye_glow_shutdown, 3, pi_args_out
    );
 }
