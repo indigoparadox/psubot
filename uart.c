@@ -3,6 +3,9 @@
 
 void uart_serial_init( void ) {
    
+   #ifdef ENABLE_HW_SERIAL
+   /* Use hardware serial interface. */
+
    /* Set DCO to 1MHz. */
    BCSCTL1 = CALBC1_1MHZ;
    DCOCTL = CALDCO_1MHZ;
@@ -23,11 +26,21 @@ void uart_serial_init( void ) {
 
    /* Start USCI. */
    UCA0CTL1 &= ~UCSWRST;
+   #else
+   /* TODO: Use software serial approximation. */
+   #endif /* ENABLE_HW_SERIAL */
 }
 
 void uart_putc( const char c_char_in ) {
+   #ifdef ENABLE_HW_SERIAL
+   /* Use hardware serial interface. */
+
    while( !(IFG2 & UCA0TXIFG) );
    UCA0TXBUF = c_char_in;
+   
+   #else
+   /* TODO: Use software serial approximation. */
+   #endif /* ENABLE_HW_SERIAL */
 }
 
 void uart_echo( char* pc_string_in ) {
