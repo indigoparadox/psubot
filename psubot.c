@@ -20,12 +20,13 @@ int main( void ) {
    psubot_init();
 
    eye_enable();
-   eye_glow( EYE_RED, 100 );
    eye_pos( 50 );
 
    drive_wheels_enable();
 
    uart_serial_init();
+
+   eye_glow( EYE_RED, 1 );
 
    beep_init();
 
@@ -46,7 +47,7 @@ int main( void ) {
 
    /* Play a little tune to signal we're ready. */
    beep_string( gae_startup, 100 );
-   eye_glow( EYE_BLUE, 100 );
+   eye_glow( EYE_BLUE, EYE_DUTY_MAX );
 
    /* Go to sleep. */
    /* TODO: Find a way to sleep without disabling the maintenance timer. */
