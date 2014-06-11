@@ -2,7 +2,6 @@
 #include "eye.h"
 
 int gi_eye_move_loops = 0;
-EYE_COLOR gi_color_current = EYE_RED;
 
 void eye_enable( void ) {
 
@@ -80,12 +79,34 @@ void eye_move( EYE_DIR e_eye_dir_in ) {
    }
 }
 
-void eye_glow( EYE_COLOR i_color_in ) {
-   scheduler_add_thread( "eye_led", eye_glow_task );
+void eye_glow( EYE_COLOR i_color_in, int i_brightness_in ) {
+   int* pi_args_out = malloc( 3 * sizeof( int ) );
+   switch( i_color_in ) {
+      case EYE_RED:
+         pi_args_out[0] = EYE_LED_RED_PORT;
+         pi_args_out[1] = EYE_LED_RED;
+         break;
+
+      case EYE_GREEN:
+         pi_args_out[0] = EYE_LED_GREEN_PORT;
+         pi_args_out[1] = EYE_LED_GREEN;
+         break;
+
+      case EYE_BLUE:
+         pi_args_out[0] = EYE_LED_BLUE_PORT;
+         pi_args_out[1] = EYE_LED_BLUE;
+         break;
+   }
+   pi_args_out[2] = i_brightness_in;
+   scheduler_add_thread( "eye_led", eye_glow_task, 3, pi_args_out );
 }
 
-void eye_glow_task( int i_arg_in ) {
+void eye_glow_task( int i_argc_in, int* pi_argv_in ) {
    static int i_led_duty_counter = 0;
 
+   /* TODO: Vary how many times we turn on/off based on [3], brightness. */
+
+   /* EYE_*_PORT, EYE_* */
+   pins_out_or( pi_argv_in[0], pi_argv_in[1] );
 }
 

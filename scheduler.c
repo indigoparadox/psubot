@@ -1,41 +1,50 @@
 
 #include "scheduler.h"
 
-void (*gpf_timer_threads[])( int ) = { NULL };
-int gpi_thread_args[] = { -1 };
-char* gpc_timer_thread_ids[] = { NULL };
-
-void* scheduler_realloc( void* old_ptr_in, size_t size_in ) {
-   
-}
+struct scheduler_task* gps_timer_tasks = NULL;
 
 int scheduler_count_threads( void ) {
-   char* pc_id_iter = gpc_timer_thread_ids[0];
+   struct scheduler_task* ps_task_iter = gps_timer_tasks;
    int i_thread_count = 0;
 
-   while( NULL != *pc_id_iter ) {
+   while( NULL != ps_task_iter ) {
       i_thread_count++;
-      pc_id_iter++;
+      ps_task_iter = ps_task_iter->next;
    }
 
    return i_thread_count;
 }
 
-void scheduler_add_thread( const char* pc_id_in, void (*thread_in)( int ) ) {
-   int i_old_thread_count;
+void scheduler_add_thread(
+   char* pc_id_in, void (*thread_in)( int, int* ), int i_argc_in,
+   int* pi_argi_in
+) {
+   struct scheduler_task* ps_task_new,
+      * ps_task_iter;
 
-
-   i_old_thread_count = scheduler_count_threads();
-
-   /* TODO: Add the thread to the threads list. */
-   gpf_timer_threads = scheduler_realloc( gpf_timer_threads, 30 );
-
-   /* TODO: Add the arg to the args list. */
-
-   if( 0 == i_old_thread_count ) {
-      /* Start the timer if a thread was added and none were present. */
+   /* Start the timer if a thread was added and none were present. */
+   if( 0 == scheduler_count_threads() ) {
       CCTL0 = CCIE;
       TACTL = TASSEL_2 + MC_2;
+   }
+
+   /* Create the new task. */
+   ps_task_new = malloc( sizeof( struct scheduler_task ) );
+   memset( ps_task_new, 0, sizeof( struct scheduler_task ) );
+   ps_task_new->task = thread_in;
+   ps_task_new->argc = i_argc_in;
+   ps_task_new->argi = pi_argi_in;
+   ps_task_new->id = pc_id_in;
+
+   /* Add the task to the tasks list. */
+   if( NULL == gps_timer_tasks ) {
+      gps_timer_tasks = ps_task_new;
+   } else {
+      ps_task_iter = gps_timer_tasks;
+      while( NULL != ps_task_iter->next ) {
+         ps_task_iter = ps_task_iter->next;
+      }
+      ps_task_iter->next = ps_task_new;
    }
 }
 
@@ -45,19 +54,20 @@ void scheduler_del_thread( const char* pc_id_in ) {
 
    /* TODO: Remove the thread from the threads list. */
 
-   /* TODO: Remove the arg from the args list. */
+}
+
+void scheduler_halt( void ) {
+
 }
 
 #pragma vector=TIMERA0_VECTOR
 __interrupt void scheduler_timer0_isr( void ) {
-   void (*pf_thread_iter)( int ) = gpf_timer_threads[0];
-   int* pi_arg_iter = &gpi_thread_args[0];
+   struct scheduler_task* ps_task_iter = gps_timer_tasks;
 
-   while( NULL != *pf_thread_iter ) {
-      (*pf_thread_iter)( *pi_arg_iter );
+   while( NULL != ps_task_iter ) {
+      (*ps_task_iter->task)( ps_task_iter->argc, ps_task_iter->argi );
       
-      pf_thread_iter++;
-      pi_arg_iter++;
+      ps_task_iter = ps_task_iter->next;
    }
 }
 

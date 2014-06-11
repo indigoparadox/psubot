@@ -5,6 +5,7 @@
 #include <msp430.h>
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "core.h"
 
@@ -26,12 +27,24 @@
    extern void* gi_timer_threads[]; \
    extern char* gpc_timer_thread_ids[]; */
 
+/* = Structs = */
+
+struct scheduler_task;
+struct scheduler_task {
+   void (*task)( int, int* );
+   int argc;
+   int* argi;
+   char* id;
+   struct scheduler_task* next;
+};
+
 /* = Function Prototypes = */
 
 void* scheduler_realloc( void*, size_t );
 int scheduler_count_threads( void );
-void scheduler_add_thread( const char*, void (*thread_in)( int ) );
+void scheduler_add_thread( char*, void (*thread_in)( int, int* ), int, int* );
 void scheduler_del_thread( const char* );
+void scheduler_halt( void );
 
 #endif /* SCHEDULER_H */
 

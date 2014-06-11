@@ -27,8 +27,8 @@ typedef enum {
 void eye_enable( void );
 void eye_pos( int );
 void eye_move( EYE_DIR );
-void eye_glow( EYE_COLOR );
-void eye_glow_task( int );
+void eye_glow( EYE_COLOR, int );
+void eye_glow_task( int, int* );
 
 #endif /* EYE_H */
 
