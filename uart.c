@@ -118,9 +118,6 @@ void uart_open( char* pc_id_in, BOOL (*task_in)( char ) ) {
    /* Get the task count before we add anything. */
    i_tasks_count = uart_count_tasks();
 
-   /* Enable UART RX interrupt. */
-   IE2 |= UCA0RXIE;
-
    /* Create the new task. */
    ps_task_new = malloc( sizeof( struct uart_task ) );
    memset( ps_task_new, 0, sizeof( struct uart_task ) );
@@ -149,8 +146,6 @@ __interrupt void uart_uart0_isr( void ) {
 
    /* TODO: Look for control characters and do special things with them. */
 
-   /* TODO: Implement tasks as a stack so latest programs block earlier. */
-   
    while( NULL != ps_task_iter ) {
       if( (*ps_task_iter->task)( UCA0RXBUF ) ) {
          /* The task blocked later tasks. */

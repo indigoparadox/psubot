@@ -28,6 +28,10 @@ int main( void ) {
    P1OUT = 0;
    P2OUT = 0;
 
+   #ifdef ENABLE_BEEP
+   beep_init();
+   #endif /* ENABLE_BEEP */
+
    #ifdef ENABLE_EYE
    eye_enable();
    eye_pos( 50 );
@@ -38,15 +42,11 @@ int main( void ) {
    uart_serial_init();
 
    #ifdef ENABLE_EYE
-   eye_glow( EYE_RED, 1 );
+   eye_glow( EYE_RED, 10 );
    #endif /* ENABLE_EYE */
 
-   #ifdef ENABLE_BEEP
-   beep_init();
-   #endif /* ENABLE_BEEP */
-
    #ifdef ENABLE_SERIAL_BT
-   // TODO: Check to see if we're connected.
+   /* TODO: Check to see if we're connected. */
    uart_echo( "\r\n+STWMOD=0\r\n" );
    uart_echo( "\r\n+STNA=" SERIAL_BT_ID "\r\n" );
    uart_echo( "\r\n+STAAUTO=1\r\n" );
@@ -55,7 +55,9 @@ int main( void ) {
    __delay_cycles( 1000000 );
    uart_echo( "\r\n+INQ=1\r\n" );
    __delay_cycles( 1000000 );
-   /* uart_echo( "\r\n+CONN=00:10:C6:C3:E6:4D\r\n" ); */
+   #ifdef SERIAL_BT_CONNECT_MAC
+   uart_echo( "\r\n+CONN=" SERIAL_BT_CONNECT_MAC "\r\n" );
+   #endif /* SERIAL_BT_CONNECT_MAC */
    #endif /* ENABLE_SERIAL_BT */
 
    #ifdef ENABLE_BEEP
@@ -64,7 +66,7 @@ int main( void ) {
    #endif /* ENABLE_BEEP */
 
    #ifdef ENABLE_EYE
-   eye_glow( EYE_BLUE, EYE_DUTY_MAX );
+   eye_glow( EYE_GREEN, EYE_DUTY_MAX );
    #endif /* ENABLE_EYE */
 
    #ifdef ENABLE_SHELL
@@ -72,7 +74,6 @@ int main( void ) {
    #endif /* ENABLE_SHELL */
 
    /* Go to sleep. */
-   /* TODO: Find a way to sleep without disabling the maintenance timer. */
    __bis_SR_register( LPM0_bits + GIE );
 
    return 0;

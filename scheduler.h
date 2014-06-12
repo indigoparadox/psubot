@@ -30,19 +30,27 @@ struct scheduler_task {
    void (*shutdown)( int, int* );
    int argc;
    int* argi;
-   char* id;
+   const char* id;
    struct scheduler_task* next;
+};
+
+struct scheduler_buzz;
+struct scheduler_buzz {
+   void (*task)( int, int* );
+   int argc;
+   int* argi;
+   const char* id;
+   struct scheduler_buzz* next;
 };
 
 /* = Function Prototypes = */
 
-void* scheduler_realloc( void*, size_t );
-int scheduler_count_tasks( void );
 void scheduler_add_task(
-   char*, void (*task_in)( int, int* ), void (*shutdown_in)( int, int* ), int,
-   int*
+   const char*, void (*task_in)( int, int* ), void (*)( int, int* ), int, int*
 );
 void scheduler_del_task( const char* );
+void scheduler_add_buzz( const char*, void (*)( int, int* ), int, int* );
+void scheduler_del_buzz( const char* );
 void scheduler_halt( void );
 
 #endif /* SCHEDULER_H */
