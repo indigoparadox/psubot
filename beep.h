@@ -2,6 +2,8 @@
 #ifndef BEEP_H
 #define BEEP_H
 
+#include "pins.h"
+
 /* = Constants = */
 
 typedef enum {

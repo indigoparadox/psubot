@@ -4,25 +4,23 @@
 #include <msp430.h>
 
 void beep_init( void ) {
-
-   P1DIR |= SPEAKER;
-   P1OUT &= ~SPEAKER;
-
+   pins_dir_or( SPEAKER_PORT, SPEAKER );
+   pins_out_and( SPEAKER_PORT, ~SPEAKER );
 }
 
 void beep( int i_freq_in, int i_time_in ) {
    int i, j;
 
-   P1OUT &= ~SPEAKER;
+   pins_out_and( SPEAKER_PORT, ~SPEAKER );
 
    for( i = 0 ; i < i_time_in ; i++ ) {
-      P1OUT |= SPEAKER;
+      pins_out_or( SPEAKER_PORT, SPEAKER );
       for( j = 0 ; j < i_freq_in ; j++ ) {}
-      P1OUT &= ~SPEAKER;
+      pins_out_and( SPEAKER_PORT, ~SPEAKER );
       for( j = 0 ; j < i_freq_in ; j++ ) {}
    }
 
-   P1OUT &= ~SPEAKER;
+   pins_out_and( SPEAKER_PORT, ~SPEAKER );
 }
 
 /* Purpose: Play an array of beep notes terminated by NULL.                   */
