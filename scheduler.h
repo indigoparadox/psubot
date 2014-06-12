@@ -36,7 +36,8 @@ struct scheduler_task {
 
 struct scheduler_buzz;
 struct scheduler_buzz {
-   void (*task)( uint8_t, int* );
+   /* Return TRUE until done. */
+   BOOL (*buzz)( uint8_t, int* );
    uint8_t argc;
    int* argi;
    uint8_t id;
@@ -49,8 +50,7 @@ uint8_t scheduler_add_task(
    void (*)( uint8_t, int* ), uint8_t (*)( uint8_t, int* ), uint8_t, int*
 );
 void scheduler_del_task( uint8_t );
-uint8_t scheduler_add_buzz( void (*)( uint8_t, int* ), uint8_t, int* );
-void scheduler_del_buzz( uint8_t );
+uint8_t scheduler_add_buzz( BOOL (*)( uint8_t, int* ), uint8_t, int* );
 void scheduler_halt( void );
 
 #endif /* SCHEDULER_H */
