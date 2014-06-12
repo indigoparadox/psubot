@@ -30,7 +30,7 @@ int main( void ) {
 
    #ifdef ENABLE_EYE
    eye_enable();
-   /* eye_pos( 50 ); */
+   eye_pos( 50 );
    #endif /* ENABLE_EYE */
 
    drive_wheels_enable();
