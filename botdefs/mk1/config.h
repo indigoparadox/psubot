@@ -13,8 +13,10 @@
 #define SERIAL_SW_BAUD  9600
 #endif
 
+/*
 #define ENABLE_SERIAL_BT
 #define SERIAL_BT_ID "PSUBot"
+*/
 
 #define ILED_PORT       PORT1
 #define ILED            BIT0

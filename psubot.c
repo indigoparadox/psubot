@@ -27,6 +27,7 @@ int main( void ) {
    WDTCTL = WDTPW | WDTHOLD;
    P1OUT = 0;
    P2OUT = 0;
+   __enable_interrupt();
 
    #ifdef ENABLE_BEEP
    beep_init();
@@ -34,7 +35,8 @@ int main( void ) {
 
    #ifdef ENABLE_EYE
    eye_enable();
-   eye_pos( 50 );
+   /* TODO: Port to scheduluer. */
+   /* eye_pos( 50 ); */
    #endif /* ENABLE_EYE */
 
    drive_wheels_enable();
@@ -84,12 +86,21 @@ int main( void ) {
 #ifdef ENABLE_EYE
 
 void command_led( void ) {
+   uint16_t i_brightness;
+
+   i_brightness = atoi( gac_args[2] );
+
+   /* Default is max brightness. */
+   if( 0 >= i_brightness ) {
+      i_brightness = EYE_DUTY_MAX;
+   }
+
    if( shell_strcmp( "RED", gac_args[1] ) ) {
-      eye_glow( EYE_RED, 100 );
+      eye_glow( EYE_RED, i_brightness );
    } else if( shell_strcmp( "GREEN", gac_args[1] ) ) {
-      eye_glow( EYE_GREEN, 100 );
+      eye_glow( EYE_GREEN, i_brightness );
    } else if( shell_strcmp( "BLUE", gac_args[1] ) ) {
-      eye_glow( EYE_BLUE, 100 );
+      eye_glow( EYE_BLUE, i_brightness );
    }
 }
 
@@ -135,7 +146,9 @@ void command_drive( void ) {
 
 SHELL_COMMANDS_BLOCK_START( 4 )
 #ifdef ENABLE_EYE
-SHELL_COMMANDS_BLOCK_ITEM( "LED", "[EYE COLOR]", command_led ),
+SHELL_COMMANDS_BLOCK_ITEM(
+   "LED", "[COLOR] [BRIGHTNESS 0-" STR( EYE_DUTY_MAX ) "]", command_led
+),
 SHELL_COMMANDS_BLOCK_ITEM( "EYE", "[POS] [INCR] OR [R/L] [INCR]", command_eye ),
 #endif /* ENABLE_EYE */
 #ifdef ENABLE_BEEP

@@ -30,9 +30,8 @@ uint8_t scheduler_add_task(
 
    /* Start the timer if a task was added and none were present. */
    if( 0 == gi_timer_tasks_count ) {
-      WDTCTL = WDTPW | WDT_MDLY_0_064;
+      WDTCTL = WDTPW | WDT_MDLY_0_5;
       IE1 |= WDTIE;
-      __enable_interrupt();
    }
 
    /* Create the new task. */
@@ -112,7 +111,6 @@ uint8_t scheduler_add_buzz(
       CCTL0 = CCIE;
       TACCR0 = 10000;
       TACTL = TASSEL_2 + MC_1;
-      __enable_interrupt();
    }
 
    /* Create the new task. */
