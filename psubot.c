@@ -42,7 +42,7 @@ int main( void ) {
    uart_serial_init();
 
    #ifdef ENABLE_EYE
-   eye_glow( EYE_RED, 10 );
+   eye_glow( EYE_RED, EYE_DUTY_HALF );
    #endif /* ENABLE_EYE */
 
    #ifdef ENABLE_SERIAL_BT
