@@ -35,7 +35,7 @@ psubot: psubot.o $(BASE_SYSTEM) $(INTERACTIVE_SYSTEM)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 flash:
-	mspdebug rf2500 "prog ./psubot.out"
+	sudo mspdebug rf2500 "prog ./psubot.out"
 
 clean:
 	rm *.o

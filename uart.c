@@ -45,7 +45,7 @@ void uart_serial_init( void ) {
    IE2 |= UCA0RXIE;
 
    #else
-   /* TODO: Use software serial approximation. */
+   /* Use software serial approximation. */
 
    /* Software serial only supported on port 1. */
    P1SEL |= SERIAL_SW_TX;
@@ -67,6 +67,14 @@ void uart_putc( const char c_char_in ) {
    
    #else
    /* TODO: Use software serial approximation. */
+
+   gi_tx_byte = c_char_in;
+
+   #if 0
+   /* Wait for line to be free. */
+   while( gi_receiving );
+   #endif
+
    #endif /* ENABLE_SERIAL_HW */
 }
 
@@ -111,6 +119,8 @@ __interrupt void uart_uart0_isr( void ) {
 
    /* TODO: Look for control characters and do special things with them. */
 
+   /* TODO: Implement tasks as a stack so latest programs block earlier. */
+   
    while( NULL != ps_task_iter ) {
       (*ps_task_iter->task)( UCA0RXBUF );
       
