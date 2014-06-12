@@ -80,7 +80,11 @@ void eye_move( EYE_DIR e_eye_dir_in ) {
 }
 
 void eye_glow( EYE_COLOR i_color_in, int i_brightness_in ) {
-   int* pi_args_out = malloc( 3 * sizeof( int ) );
+   static int16_t i_last_id = -1;
+   int* pi_args_out;
+   
+   pi_args_out = malloc( 3 * sizeof( int ) );
+
    switch( i_color_in ) {
       case EYE_RED:
          pi_args_out[0] = EYE_LED_RED_PORT;
@@ -98,14 +102,19 @@ void eye_glow( EYE_COLOR i_color_in, int i_brightness_in ) {
          break;
    }
    pi_args_out[2] = i_brightness_in;
-   scheduler_del_task( "eye_led" );
-   scheduler_add_task(
-      "eye_led", eye_glow_task, eye_glow_shutdown, 3, pi_args_out
+
+   /* Shutdown previous eye task if it exists. */
+   if( 0 <= i_last_id ) {
+      scheduler_del_task( i_last_id );
+   }
+   
+   i_last_id = scheduler_add_task(
+      eye_glow_task, eye_glow_shutdown, 3, pi_args_out
    );
 }
 
-void eye_glow_task( int i_argc_in, int* pi_argi_in ) {
-   static int i_led_duty_counter = 0;
+void eye_glow_task( uint8_t i_argc_in, int* pi_argi_in ) {
+   static uint16_t i_led_duty_counter = 0;
 
    /* Use PWM to vary the brightness of the LED as best we can. */
 
@@ -123,7 +132,8 @@ void eye_glow_task( int i_argc_in, int* pi_argi_in ) {
    pins_out_toggle( pi_argi_in[0], pi_argi_in[1] );
 }
 
-void eye_glow_shutdown( int i_argc_in, int* pi_argi_in ) {
+uint8_t eye_glow_shutdown( uint8_t i_argc_in, int* pi_argi_in ) {
    pins_out_and( pi_argi_in[0], ~pi_argi_in[1] );
+   return 0;
 }
 
