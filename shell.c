@@ -32,7 +32,7 @@ BOOL shell_strcmp( char* pc_string1_in, char* pc_string2_in ) {
 
       pc_iter_1++;
       pc_iter_2++;
-   } while( NULL != *pc_iter_1 && NULL != *pc_iter_2 );
+   } while( '\0' != *pc_iter_1 && '\0' != *pc_iter_2 );
 
    return TRUE;
 }
@@ -52,7 +52,7 @@ void shell_command_help( void ) {
 
 #endif /* ENABLE_SHELL_HELP */
 
-void shell_task( char c_char_in ) {
+BOOL shell_task( char c_char_in ) {
    uint8_t i, j;
    static uint8_t i_command_buffer_pos = 0,
       i_arg_buffer_pos = 0,
@@ -74,7 +74,7 @@ void shell_task( char c_char_in ) {
       i_arg_buffer_pos = 0;
       i_arg_buffer_sel = 0;
       i_command_buffer_pos = 0;
-      while( NULL != ac_command_last[i_command_buffer_pos] ) {
+      while( '\0' != ac_command_last[i_command_buffer_pos] ) {
          if( ' ' == ac_command_last[i_command_buffer_pos] ) {
             /* Move on to the next argument buffer if we can. */
             if( SHELL_ARG_COUNT <= (i_arg_buffer_sel + 1) ) {
@@ -133,5 +133,8 @@ void shell_task( char c_char_in ) {
          #endif /* ENABLE_SHELL_HELP */
       }
    }
+
+   /* The shell should always be the last task. */
+   return TRUE;
 }
 

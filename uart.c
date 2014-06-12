@@ -105,15 +105,14 @@ uint8_t uart_count_tasks( void ) {
 
    while( NULL != ps_task_iter ) {
       i_task_count++;
-      ps_task_iter = ps_task_iter->next;
+      ps_task_iter = ps_task_iter->prev;
    }
 
    return i_task_count;
 }
 
-void uart_open( char* pc_id_in, void (*task_in)( char ) ) {
-   struct uart_task* ps_task_iter,
-      * ps_task_new;
+void uart_open( char* pc_id_in, BOOL (*task_in)( char ) ) {
+   struct uart_task* ps_task_new;
    uint8_t i_tasks_count;
 
    /* Get the task count before we add anything. */
@@ -132,11 +131,8 @@ void uart_open( char* pc_id_in, void (*task_in)( char ) ) {
    if( NULL == gps_uart_tasks ) {
       gps_uart_tasks = ps_task_new;
    } else {
-      ps_task_iter = gps_uart_tasks;
-      while( NULL != ps_task_iter->next ) {
-         ps_task_iter = ps_task_iter->next;
-      }
-      ps_task_iter->next = ps_task_new;
+      ps_task_new->prev = gps_uart_tasks;
+      gps_uart_tasks = ps_task_new;
    }
 
    /* If this is the first task, start the listener. */
@@ -156,9 +152,12 @@ __interrupt void uart_uart0_isr( void ) {
    /* TODO: Implement tasks as a stack so latest programs block earlier. */
    
    while( NULL != ps_task_iter ) {
-      (*ps_task_iter->task)( UCA0RXBUF );
+      if( (*ps_task_iter->task)( UCA0RXBUF ) ) {
+         /* The task blocked later tasks. */
+         break;
+      }
       
-      ps_task_iter = ps_task_iter->next;
+      ps_task_iter = ps_task_iter->prev;
    }
 }
 
