@@ -21,12 +21,12 @@ endif
 CPU=$(shell grep '^.define CPU' botdefs/$(BOT)/config.h | awk '{print $$3}' 2>/dev/null)
 
 CC = msp430-gcc
-CFLAGS = -mmcu=$(CPU) -Wall -include botdefs/$(BOT)/config.h
+CFLAGS = -mmcu=$(CPU) -Wall -Os -Wl,-gc-sections -include botdefs/$(BOT)/config.h
 
 all: psubot
 
 psubot: psubot.o $(BASE_SYSTEM) $(INTERACTIVE_SYSTEM)
-	$(CC) $(CFLAGS) -o $@.out $^
+	$(CC) $(CFLAGS) -Wl,-Map=$@.map,--cref -o $@.out $^
 	msp430-strip $@.out
 
 # = Generic Utility Definitions =

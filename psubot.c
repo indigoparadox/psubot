@@ -30,7 +30,7 @@ int main( void ) {
 
    #ifdef ENABLE_EYE
    eye_enable();
-   eye_pos( 50 );
+   /* eye_pos( 50 ); */
    #endif /* ENABLE_EYE */
 
    drive_wheels_enable();
@@ -47,20 +47,20 @@ int main( void ) {
    beep_init();
    #endif /* ENABLE_BEEP */
 
-   #ifdef ENABLE_SHELL
+   #ifdef ENABLE_SERIAL_BT
    // TODO: Check to see if we're connected.
    uart_echo( "\r\n+STWMOD=0\r\n" );
-   uart_echo( "\r\n+STNA=PSUBot\r\n" );
+   uart_echo( "\r\n+STNA=" SERIAL_BT_ID "\r\n" );
    uart_echo( "\r\n+STAAUTO=1\r\n" );
    uart_echo( "\r\n+STOAUT=1\r\n" );
    uart_echo( "\r\n+STPIN=0000\r\n" );
-
    __delay_cycles( 1000000 );
    uart_echo( "\r\n+INQ=1\r\n" );
    __delay_cycles( 1000000 );
-
    /* uart_echo( "\r\n+CONN=00:10:C6:C3:E6:4D\r\n" ); */
+   #endif /* ENABLE_SERIAL_BT */
 
+   #ifdef ENABLE_SHELL
    shell_init();
    #endif /* ENABLE_SHELL */
 

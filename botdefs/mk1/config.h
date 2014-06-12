@@ -7,6 +7,11 @@
 #define ENABLE_SHELL_HELP
 #define ENABLE_SERIAL_HW
 
+#if 0
+#define ENABLE_SERIAL_BT
+#define SERIAL_BT_ID PSUBot
+#endif
+
 #define ILED_PORT       PORT1
 #define ILED            BIT0
 

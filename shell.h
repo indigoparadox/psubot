@@ -8,7 +8,7 @@
 
 /* = Constants = */
 
-#define SHELL_COMMAND_LEN 20
+#define SHELL_COMMAND_LEN 12
 #define SHELL_ARG_COUNT 5
 
 #ifdef ENABLE_SHELL_HELP
@@ -25,7 +25,9 @@
 
 typedef struct {
    char* command;
+   #ifdef ENABLE_SHELL_HELP
    char* helptext;
+   #endif /* ENABLE_SHELL_HELP */
    void (*handler)( void );
 } shell_command;
 
@@ -45,7 +47,7 @@ typedef struct {
 #else
 
 #define SHELL_COMMANDS_BLOCK_ITEM( command, help, handler ) \
-   { command, "", handler }
+   { command, handler }
 
 /* "count" should have the number of system-defined commands added to it in-  *
  * macro.                                                                     */
@@ -66,6 +68,7 @@ BOOL shell_strcmp( char*, char* );
 #ifdef ENABLE_SHELL_HELP
 void shell_command_help( void );
 #endif /* ENABLE_SHELL_HELP */
+void shell_task( char );
 
 #endif /* SHELL_H */
 
