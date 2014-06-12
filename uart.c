@@ -1,9 +1,23 @@
 
 #include "uart.h"
 
+struct uart_task* gps_uart_tasks = NULL;
+
+#ifndef ENABLE_SERIAL_HW
+
+/* Constants required for  software UART. */
+
+static volatile uint8_t gi_bit_count;
+static volatile unsigned int gi_tx_byte;
+static volatile unsigned int gi_rx_byte;
+static volatile BOOL gi_receiving = FALSE;
+static volatile BOOL gi_has_received = FALSE;
+
+#endif /* ENABLE_SERIAL_HW */
+
 void uart_serial_init( void ) {
    
-   #ifdef ENABLE_HW_SERIAL
+   #ifdef ENABLE_SERIAL_HW
    /* Use hardware serial interface. */
 
    /* Set DCO to 1MHz. */
@@ -26,13 +40,26 @@ void uart_serial_init( void ) {
 
    /* Start USCI. */
    UCA0CTL1 &= ~UCSWRST;
+
+   /* Enable UART RX interrupt. */
+   IE2 |= UCA0RXIE;
+
    #else
    /* TODO: Use software serial approximation. */
-   #endif /* ENABLE_HW_SERIAL */
+
+   /* Software serial only supported on port 1. */
+   P1SEL |= SERIAL_SW_TX;
+   P1DIR |= SERIAL_SW_TX;
+
+   P1IES |= SERIAL_SW_RX;
+   P1IFG &= ~SERIAL_SW_RX;
+   P1IE |= SERIAL_SW_RX;
+
+   #endif /* ENABLE_SERIAL_HW */
 }
 
 void uart_putc( const char c_char_in ) {
-   #ifdef ENABLE_HW_SERIAL
+   #ifdef ENABLE_SERIAL_HW
    /* Use hardware serial interface. */
 
    while( !(IFG2 & UCA0TXIFG) );
@@ -40,7 +67,7 @@ void uart_putc( const char c_char_in ) {
    
    #else
    /* TODO: Use software serial approximation. */
-   #endif /* ENABLE_HW_SERIAL */
+   #endif /* ENABLE_SERIAL_HW */
 }
 
 void uart_echo( char* pc_string_in ) {
@@ -53,4 +80,47 @@ void uart_echo( char* pc_string_in ) {
       pc_iter++;
    }
 }
+
+void uart_open( char* pc_id_in, void (*task_in)( char ) ) {
+   struct uart_task* ps_task_iter,
+      * ps_task_new;
+
+   /* Create the new task. */
+   ps_task_new = malloc( sizeof( struct uart_task ) );
+   memset( ps_task_new, 0, sizeof( struct uart_task ) );
+   ps_task_new->task = task_in;
+   ps_task_new->id = pc_id_in;
+
+   /* Add the task to the tasks list. */
+   if( NULL == gps_uart_tasks ) {
+      gps_uart_tasks = ps_task_new;
+   } else {
+      ps_task_iter = gps_uart_tasks;
+      while( NULL != ps_task_iter->next ) {
+         ps_task_iter = ps_task_iter->next;
+      }
+      ps_task_iter->next = ps_task_new;
+   }
+}
+
+#ifdef ENABLE_SERIAL_HW
+
+#pragma vector=USCIAB0RX_VECTOR
+__interrupt void uart_uart0_isr( void ) {
+   struct uart_task* ps_task_iter = gps_uart_tasks;
+
+   /* TODO: Look for control characters and do special things with them. */
+
+   while( NULL != ps_task_iter ) {
+      (*ps_task_iter->task)( UCA0RXBUF );
+      
+      ps_task_iter = ps_task_iter->next;
+   }
+}
+
+#else
+
+/* TODO: Implement software UART. */
+
+#endif /* ENABLE_SERIAL_HW */
 

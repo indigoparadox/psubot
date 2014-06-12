@@ -4,9 +4,11 @@
 
 #include <msp430.h>
 
+#include <stdint.h>
+
 /* = Types = */
 
-typedef int BOOL;
+typedef uint8_t BOOL;
 
 /* = Constants = */
 

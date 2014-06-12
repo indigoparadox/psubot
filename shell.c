@@ -9,23 +9,16 @@
 #include <stdint.h>
 
 extern shell_command gao_commands[];
-extern int gi_commands_count;
+extern uint8_t gi_commands_count;
 
 char gac_args[SHELL_ARG_COUNT][SHELL_COMMAND_LEN];
 
 void shell_init( void ) {
-   #ifdef ENABLE_HW_SERIAL
-   /* Use hardware serial interface. */
-
-   /* Enable UART RX interrupt. */
-   IE2 |= UCA0RXIE;
-
+   #ifdef ENABLE_SHELL_HELP
+   uart_open( "shell", shell_task );
    uart_echo( "\n\r" );
    uart_echo( SHELL_STRING_PROMPT );
-
-   #else
-   /* TODO: Use software serial approximation. */
-   #endif /* ENABLE_HW_SERIAL */
+   #endif /* ENABLE_SHELL_HELP */
 }
 
 BOOL shell_strcmp( char* pc_string1_in, char* pc_string2_in ) {
@@ -59,17 +52,14 @@ void shell_command_help( void ) {
 
 #endif /* ENABLE_SHELL_HELP */
 
-#ifdef ENABLE_HW_SERIAL
-
-#pragma vector=USCIAB0RX_VECTOR
-__interrupt void shell_uart0_isr( void ) {
+void shell_task( char c_char_in ) {
    uint8_t i, j;
    static uint8_t i_command_buffer_pos = 0,
       i_arg_buffer_pos = 0,
       i_arg_buffer_sel = 0;
    static char ac_command_last[SHELL_COMMAND_LEN] = { '\0' };
 
-   if( '\r' == UCA0RXBUF ) {
+   if( '\r' == c_char_in ) {
       /* "Enter" was received, so process the last command. */
 
       uart_echo( "\n\r" );
@@ -88,9 +78,11 @@ __interrupt void shell_uart0_isr( void ) {
          if( ' ' == ac_command_last[i_command_buffer_pos] ) {
             /* Move on to the next argument buffer if we can. */
             if( SHELL_ARG_COUNT <= (i_arg_buffer_sel + 1) ) {
+               #ifdef ENABLE_SHELL_HELP
                /* TODO: Do we need to handle this situation if it can't occur *
                 *       with the selected variable sizing?                    */
                uart_echo( SHELL_STRING_TOOMANYARGS );
+               #endif /* ENABLE_SHELL_HELP */
                break;
             } else {
                i_arg_buffer_sel++;
@@ -120,30 +112,26 @@ __interrupt void shell_uart0_isr( void ) {
       i_command_buffer_pos = 0;
       uart_echo( SHELL_STRING_PROMPT );
 
-   } else if( 0x7f == UCA0RXBUF ) {
+   } else if( 0x7f == c_char_in ) {
       /* Delete character. */
       if( 0 < i_command_buffer_pos ) {
          uart_putc( 0x08 ); /* Backspace */
          i_command_buffer_pos--;
       }
 
-   } else if( '\t' == UCA0RXBUF ) {
-      /* Tab character. */
-      uart_echo( "TAB" );
-
-   } else if( '\r' != UCA0RXBUF ) {
+   } else if( '\r' != c_char_in ) {
       if( i_command_buffer_pos <= (SHELL_COMMAND_LEN - 1) ) {
          /* Add the character to the current buffer and echo it back. */
-         ac_command_last[i_command_buffer_pos] = UCA0RXBUF;
+         ac_command_last[i_command_buffer_pos] = c_char_in;
          i_command_buffer_pos++;
-         uart_putc( UCA0RXBUF );
+         uart_putc( c_char_in );
       } else {
          /* The command is too long, so reset. */
          i_command_buffer_pos = 0;
+         #ifdef ENABLE_SHELL_HELP
          uart_echo( SHELL_STRING_TOOLONG );
+         #endif /* ENABLE_SHELL_HELP */
       }
    }
 }
-
-#endif /* ENABLE_HW_SERIAL */
 
