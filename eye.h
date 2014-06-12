@@ -22,7 +22,8 @@ typedef enum {
    EYE_BLUE
 } EYE_COLOR;
 
-#define EYE_DUTY_MAX 10
+#define EYE_DUTY_MAX 10000
+#define EYE_DUTY_HALF EYE_DUTY_MAX / 2
 
 /* = Function Prototypes = */
 

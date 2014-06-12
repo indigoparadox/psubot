@@ -105,22 +105,22 @@ void eye_glow( EYE_COLOR i_color_in, int i_brightness_in ) {
 }
 
 void eye_glow_task( int i_argc_in, int* pi_argi_in ) {
-   static int i_led_duty_counter = 1;
+   static int i_led_duty_counter = 0;
 
-   /* If we're at max duty then just keep the eye solid. */
-   if( EYE_DUTY_MAX == pi_argi_in[2] ) {
+   /* Use PWM to vary the brightness of the LED as best we can. */
+
+   if( i_led_duty_counter > pi_argi_in[2] ) {
       pins_out_or( pi_argi_in[0], pi_argi_in[1] );
-      return;
+   } else {
+      pins_out_and( pi_argi_in[0], pi_argi_in[1] );
    }
 
-   /* TODO: Vary how many times we turn on/off based on [2], brightness. */
-   if( 0 == (EYE_DUTY_MAX - i_led_duty_counter) / pi_argi_in[2] ) {
-      i_led_duty_counter = 1;
-      /* EYE_*_PORT, EYE_* */
-      pins_out_toggle( pi_argi_in[0], pi_argi_in[1] );
-   } else {
-      i_led_duty_counter++;
+   i_led_duty_counter++;
+   if( EYE_DUTY_MAX <= i_led_duty_counter ) {
+      i_led_duty_counter = 0;
    }
+
+   pins_out_toggle( pi_argi_in[0], pi_argi_in[1] );
 }
 
 void eye_glow_shutdown( int i_argc_in, int* pi_argi_in ) {
