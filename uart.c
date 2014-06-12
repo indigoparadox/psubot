@@ -15,6 +15,19 @@ static volatile BOOL gi_has_received = FALSE;
 
 #endif /* ENABLE_SERIAL_HW */
 
+static void _uart_listen( void ) {
+   #ifdef ENABLE_SERIAL_HW
+   /* Use hardware serial interface. */
+
+   /* Enable UART RX interrupt. */
+   IE2 |= UCA0RXIE;
+
+   #else
+   /* TODO: Use software serial approximation. */
+
+   #endif /* ENABLE_SERIAL_HW */
+}
+
 void uart_serial_init( void ) {
    
    #ifdef ENABLE_SERIAL_HW
@@ -40,9 +53,6 @@ void uart_serial_init( void ) {
 
    /* Start USCI. */
    UCA0CTL1 &= ~UCSWRST;
-
-   /* Enable UART RX interrupt. */
-   IE2 |= UCA0RXIE;
 
    #else
    /* Use software serial approximation. */
@@ -89,9 +99,28 @@ void uart_echo( char* pc_string_in ) {
    }
 }
 
+uint8_t uart_count_tasks( void ) {
+   struct uart_task* ps_task_iter = gps_uart_tasks;
+   uint8_t i_task_count = 0;
+
+   while( NULL != ps_task_iter ) {
+      i_task_count++;
+      ps_task_iter = ps_task_iter->next;
+   }
+
+   return i_task_count;
+}
+
 void uart_open( char* pc_id_in, void (*task_in)( char ) ) {
    struct uart_task* ps_task_iter,
       * ps_task_new;
+   uint8_t i_tasks_count;
+
+   /* Get the task count before we add anything. */
+   i_tasks_count = uart_count_tasks();
+
+   /* Enable UART RX interrupt. */
+   IE2 |= UCA0RXIE;
 
    /* Create the new task. */
    ps_task_new = malloc( sizeof( struct uart_task ) );
@@ -108,6 +137,11 @@ void uart_open( char* pc_id_in, void (*task_in)( char ) ) {
          ps_task_iter = ps_task_iter->next;
       }
       ps_task_iter->next = ps_task_new;
+   }
+
+   /* If this is the first task, start the listener. */
+   if( 1 > i_tasks_count ) {
+      _uart_listen();
    }
 }
 

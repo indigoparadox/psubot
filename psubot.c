@@ -35,9 +35,7 @@ int main( void ) {
 
    drive_wheels_enable();
 
-   #ifdef ENABLE_SHELL
    uart_serial_init();
-   #endif /* ENABLE_SHELL */
 
    #ifdef ENABLE_EYE
    eye_glow( EYE_RED, 1 );
@@ -60,10 +58,6 @@ int main( void ) {
    /* uart_echo( "\r\n+CONN=00:10:C6:C3:E6:4D\r\n" ); */
    #endif /* ENABLE_SERIAL_BT */
 
-   #ifdef ENABLE_SHELL
-   shell_init();
-   #endif /* ENABLE_SHELL */
-
    #ifdef ENABLE_BEEP
    /* Play a little tune to signal we're ready. */
    beep_string( gae_startup, 100 );
@@ -72,6 +66,10 @@ int main( void ) {
    #ifdef ENABLE_EYE
    eye_glow( EYE_BLUE, EYE_DUTY_MAX );
    #endif /* ENABLE_EYE */
+
+   #ifdef ENABLE_SHELL
+   shell_init();
+   #endif /* ENABLE_SHELL */
 
    /* Go to sleep. */
    /* TODO: Find a way to sleep without disabling the maintenance timer. */
