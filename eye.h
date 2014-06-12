@@ -31,8 +31,8 @@ void eye_enable( void );
 void eye_pos( int );
 void eye_move( EYE_DIR );
 void eye_glow( EYE_COLOR, int );
-void eye_glow_task( int, int* );
-void eye_glow_shutdown( int, int* );
+void eye_glow_task( uint8_t, int* );
+uint8_t eye_glow_shutdown( uint8_t, int* );
 
 #endif /* EYE_H */
 

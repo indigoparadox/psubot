@@ -26,31 +26,31 @@
 
 struct scheduler_task;
 struct scheduler_task {
-   void (*task)( int, int* );
-   void (*shutdown)( int, int* );
-   int argc;
+   void (*task)( uint8_t, int* );
+   uint8_t (*shutdown)( uint8_t, int* );
+   uint8_t argc;
    int* argi;
-   const char* id;
+   uint8_t id;
    struct scheduler_task* next;
 };
 
 struct scheduler_buzz;
 struct scheduler_buzz {
-   void (*task)( int, int* );
-   int argc;
+   void (*task)( uint8_t, int* );
+   uint8_t argc;
    int* argi;
-   const char* id;
+   uint8_t id;
    struct scheduler_buzz* next;
 };
 
 /* = Function Prototypes = */
 
-void scheduler_add_task(
-   const char*, void (*task_in)( int, int* ), void (*)( int, int* ), int, int*
+uint8_t scheduler_add_task(
+   void (*)( uint8_t, int* ), uint8_t (*)( uint8_t, int* ), uint8_t, int*
 );
-void scheduler_del_task( const char* );
-void scheduler_add_buzz( const char*, void (*)( int, int* ), int, int* );
-void scheduler_del_buzz( const char* );
+void scheduler_del_task( uint8_t );
+uint8_t scheduler_add_buzz( void (*)( uint8_t, int* ), uint8_t, int* );
+void scheduler_del_buzz( uint8_t );
 void scheduler_halt( void );
 
 #endif /* SCHEDULER_H */

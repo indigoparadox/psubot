@@ -2,9 +2,9 @@
 #include "scheduler.h"
 
 struct scheduler_task* gps_timer_tasks = NULL;
-int gi_timer_tasks_count = 0;
+uint8_t gi_timer_tasks_count = 0;
 struct scheduler_buzz* gps_buzzes = NULL;
-int gi_buzzes_count = 0;
+uint8_t gi_buzzes_count = 0;
 
 /* XXX: Change this to a global int. */
 #if 0
@@ -21,9 +21,9 @@ int scheduler_count_tasks( void ) {
 }
 #endif
 
-void scheduler_add_task(
-   const char* pc_id_in, void (*task_in)( int, int* ),
-   void (*shutdown_in)( int, int* ), int i_argc_in, int* pi_argi_in
+uint8_t scheduler_add_task(
+   void (*task_in)( uint8_t, int* ),
+   uint8_t (*shutdown_in)( uint8_t, int* ), uint8_t i_argc_in, int* pi_argi_in
 ) {
    struct scheduler_task* ps_task_new,
       * ps_task_iter;
@@ -42,7 +42,7 @@ void scheduler_add_task(
    ps_task_new->shutdown = shutdown_in;
    ps_task_new->argc = i_argc_in;
    ps_task_new->argi = pi_argi_in;
-   ps_task_new->id = pc_id_in;
+   ps_task_new->id = gi_timer_tasks_count;
 
    /* Add the task to the tasks list. */
    if( NULL == gps_timer_tasks ) {
@@ -56,22 +56,22 @@ void scheduler_add_task(
    }
 
    gi_timer_tasks_count++;
+   return ps_task_new->id;
 }
 
 void _scheduler_free_task( struct scheduler_task* ps_task_in ) {
-   free( (char*)ps_task_in->id );
    free( ps_task_in->argi );
    free( ps_task_in );
    /* TODO: Do we free the task function pointer? */
 }
 
-void scheduler_del_task( const char* pc_id_in ) {
+void scheduler_del_task( uint8_t i_id_in ) {
    struct scheduler_task* ps_task_iter = gps_timer_tasks,
       * ps_task_prev = NULL;
 
    /* Remove the task from the tasks list. */
    while( NULL != ps_task_iter ) {
-      if( 0 != strcmp( ps_task_iter->id, pc_id_in ) ) {
+      if( ps_task_iter->id != i_id_in ) {
          continue;
       }
 
@@ -101,9 +101,8 @@ void scheduler_del_task( const char* pc_id_in ) {
    }
 }
 
-void scheduler_add_buzz(
-   const char* pc_id_in, void (*buzz_in)( int, int* ),
-   int i_argc_in, int* pi_argi_in
+uint8_t scheduler_add_buzz(
+   void (*buzz_in)( uint8_t, int* ), uint8_t i_argc_in, int* pi_argi_in
 ) {
    struct scheduler_buzz* ps_buzz_new,
       * ps_buzz_iter;
@@ -122,7 +121,7 @@ void scheduler_add_buzz(
    ps_buzz_new->task = buzz_in;
    ps_buzz_new->argc = i_argc_in;
    ps_buzz_new->argi = pi_argi_in;
-   ps_buzz_new->id = pc_id_in;
+   ps_buzz_new->id = gi_buzzes_count;
 
    /* Add the task to the tasks list. */
    if( NULL == gps_buzzes ) {
@@ -136,9 +135,10 @@ void scheduler_add_buzz(
    }
    
    gi_buzzes_count++;
+   return ps_buzz_new->id;
 }
 
-void scheduler_del_buzz( const char* pc_id_in ) {
+void scheduler_del_buzz( uint8_t i_id_in ) {
 
    gi_buzzes_count--;
 }
