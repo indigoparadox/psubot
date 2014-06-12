@@ -1,0 +1,19 @@
+
+== GNU/Linux ==
+
+1. TODO: Enable pairing on PSUBot. Currently this means recomplining with the
+   auth code enabled.
+
+2. Connect to the device:
+
+   simple-agent hci0 00:18:A1:12:0F:F9
+
+3. Bind the serial port (not sure if this command is correct; can always use
+   GTK bluetooth tool):
+
+   rfcomm bind 00:18:A1:12:0F:F9 1
+
+4. Connect to the serial port:
+
+   cu -s 9600 -l /dev/rfcomm0
+
