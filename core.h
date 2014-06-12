@@ -29,5 +29,10 @@ typedef enum {
    PORT2
 } PORT;
 
+/* = Macros = */
+
+#define STR_HELPER( num ) #num
+#define STR( num ) STR_HELPER( num )
+
 #endif /* CORE_H */
 
