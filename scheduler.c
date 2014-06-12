@@ -24,10 +24,8 @@ void scheduler_add_task(
 
    /* Start the timer if a task was added and none were present. */
    if( 0 == scheduler_count_tasks() ) {
-      CCTL0 = CCIE;
-      TACCR0 = 10000;
-      TACTL = TASSEL_2 + MC_1;
-      __enable_interrupt();
+      WDTCTL = WDT_MDLY_0_064;
+      IE1 |= WDTIE;
    }
 
    /* Create the new task. */
@@ -87,8 +85,7 @@ void scheduler_del_task( const char* pc_id_in ) {
 
    /* Shut off the timer if no tasks are present. */
    if( 0 == scheduler_count_tasks() ) {
-      CCTL0 = 0;
-      TACTL = 0;
+      /* TODO */
    }
 
 }
@@ -112,8 +109,10 @@ void scheduler_halt( void ) {
    #ifdef IE2
    IE2 = 0;
    #endif /* IE2 */
+   /*
    TACTL = 0;
    CCTL0 = 0;
+   */
 
    /* Turn off all outputs. */
    P1OUT = 0;
@@ -129,8 +128,8 @@ void scheduler_halt( void ) {
    }
 }
 
-#pragma vector=TIMERA0_VECTOR
-__interrupt void scheduler_timer0_isr( void ) {
+#pragma vector=WDT_VECTOR
+__interrupt void scheduler_wdt_isr( void ) {
    struct scheduler_task* ps_task_iter = gps_timer_tasks;
 
    while( NULL != ps_task_iter ) {
