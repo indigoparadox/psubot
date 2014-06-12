@@ -68,7 +68,7 @@ BOOL shell_strcmp( char*, char* );
 #ifdef ENABLE_SHELL_HELP
 void shell_command_help( void );
 #endif /* ENABLE_SHELL_HELP */
-void shell_task( char );
+BOOL shell_task( char );
 
 #endif /* SHELL_H */
 

@@ -27,9 +27,9 @@
 
 struct uart_task;
 struct uart_task {
-   void (*task)( char );
+   BOOL (*task)( char );
    char* id;
-   struct uart_task* next;
+   struct uart_task* prev;
 };
 
 /* = Function Prototypes = */
@@ -37,7 +37,7 @@ struct uart_task {
 void uart_serial_init( void );
 void uart_putc( const char );
 void uart_echo( char* );
-void uart_open( char*, void (*)( char ) );
+void uart_open( char*, BOOL (*)( char ) );
 
 #if 0
 /* This must be defined in any test program that calls this header, even if   *
