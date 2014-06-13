@@ -39,7 +39,7 @@ typedef int BOOL;
 #define EYE_R     BIT4
 #define EYE_L     BIT5
 
-#define WHEEL_R_F BIT6
+#define WHEEL_R_F BIT7
 
 /* IO Ports: Port 2 */
 
