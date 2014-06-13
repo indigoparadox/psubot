@@ -46,11 +46,12 @@ struct scheduler_buzz {
 
 /* = Function Prototypes = */
 
+void scheduler_init( void );
 uint8_t scheduler_add_task(
    void (*)( uint8_t, int* ), uint8_t (*)( uint8_t, int* ), uint8_t, int*
 );
 void scheduler_del_task( uint8_t );
-uint8_t scheduler_add_buzz( BOOL (*)( uint8_t, int* ), uint8_t, int* );
+uint8_t scheduler_buzz( BOOL (*)( uint8_t, int* ), uint8_t, int*, BOOL );
 void scheduler_halt( void );
 
 #endif /* SCHEDULER_H */

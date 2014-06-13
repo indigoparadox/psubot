@@ -29,6 +29,8 @@ int main( void ) {
    P2OUT = 0;
    __enable_interrupt();
 
+   scheduler_init();
+
    #ifdef ENABLE_BEEP
    beep_init();
    #endif /* ENABLE_BEEP */
@@ -68,7 +70,7 @@ int main( void ) {
    #endif /* ENABLE_BEEP */
 
    #ifdef ENABLE_EYE
-   eye_glow( EYE_GREEN, EYE_DUTY_MAX );
+   eye_glow( EYE_GREEN, EYE_DUTY_HALF );
    #endif /* ENABLE_EYE */
 
    #ifdef ENABLE_SHELL
