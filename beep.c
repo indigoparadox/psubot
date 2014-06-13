@@ -14,7 +14,7 @@ void beep( int i_freq_in, int i_time_in ) {
    pi_args_out[0] = i_freq_in;
    pi_args_out[1] = i_time_in;
 
-   scheduler_add_buzz( beep_buzz, 2, pi_args_out );
+   scheduler_buzz( beep_buzz, 2, pi_args_out, FALSE );
 
    #if 0
    int i, j;
@@ -48,7 +48,14 @@ void beep_string( BEEP_NOTE* pe_notes_in, int i_note_time_in ) {
 
 BOOL beep_buzz( uint8_t i_argc_in, int* pi_argi_in ) {
 
-   pins_out_toggle( SPEAKER_PORT, SPEAKER );
+   /*
+   TACCR0 = 1000-1;
+   TACCTL1 = OUTMOD_7;
+   TACCR1 = 250;
+   TACTL = TASSEL_2 + MC_1;
+   P1SEL |= SPEAKER;
+   */
+   //pins_out_toggle( SPEAKER_PORT, SPEAKER );
 
    return FALSE;
 }

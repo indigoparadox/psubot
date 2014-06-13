@@ -118,10 +118,10 @@ void eye_glow_task( uint8_t i_argc_in, int* pi_argi_in ) {
 
    /* Use PWM to vary the brightness of the LED as best we can. */
 
-   if( i_led_duty_counter > pi_argi_in[2] ) {
+   if( i_led_duty_counter < pi_argi_in[2] ) {
       pins_out_or( pi_argi_in[0], pi_argi_in[1] );
    } else {
-      pins_out_and( pi_argi_in[0], pi_argi_in[1] );
+      pins_out_and( pi_argi_in[0], ~pi_argi_in[1] );
    }
 
    i_led_duty_counter++;
@@ -129,7 +129,8 @@ void eye_glow_task( uint8_t i_argc_in, int* pi_argi_in ) {
       i_led_duty_counter = 0;
    }
 
-   pins_out_toggle( pi_argi_in[0], pi_argi_in[1] );
+   //pins_out_toggle( pi_argi_in[0], pi_argi_in[1] );
+   //pins_out_toggle( SPEAKER_PORT, SPEAKER );
 }
 
 uint8_t eye_glow_shutdown( uint8_t i_argc_in, int* pi_argi_in ) {

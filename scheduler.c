@@ -5,6 +5,23 @@ struct scheduler_task* gps_timer_tasks = NULL;
 uint8_t gi_timer_tasks_count = 0;
 struct scheduler_buzz* gps_buzzes = NULL;
 uint8_t gi_buzzes_count = 0;
+BOOL gi_buzzer_locked = FALSE;
+
+void scheduler_init( void ) {
+   #if 0
+   #ifdef CALBC1_16MHZ
+   /* Try to go as fast as possible. */
+   if( 0xff != CALBC1_16MHZ ) {
+      DCOCTL = 0;
+      BCSCTL1 = CALBC1_16MHZ;
+      DCOCTL = CALDCO_16MHZ;
+
+   } else {
+      scheduler_halt();
+   }
+   #endif /* CALBC1_16MHZ */
+   #endif
+}
 
 uint8_t scheduler_add_task(
    void (*task_in)( uint8_t, int* ),
@@ -15,8 +32,21 @@ uint8_t scheduler_add_task(
 
    /* Start the timer if a task was added and none were present. */
    if( 0 == gi_timer_tasks_count ) {
-      WDTCTL = WDTPW | WDT_MDLY_8;
+      WDTCTL = WDTPW | WDT_MDLY_0_5;
       IE1 |= WDTIE;
+
+      #if 0
+      TACCR0 = 100;
+      TACTL = TASSEL_2 + MC_1;
+      CCTL0 = CCIE;
+      #endif
+
+      P1SEL = SPEAKER;
+      CCR0 = 8000000 / 8000;;
+      unsigned long t = 0;
+      CCR1 = ((t<<1)^((t<<1)+(t>>7)&t>>12))|t>>(4-(1^7&(t>>19)))|t>>7;
+      CCTL1 = OUTMOD_7;
+      TACTL = TASSEL_2 + MC_1;
    }
 
    /* Create the new task. */
@@ -85,12 +115,27 @@ void scheduler_del_task( uint8_t i_id_in ) {
    }
 }
 
-uint8_t scheduler_add_buzz(
-   BOOL (*buzz_in)( uint8_t, int* ), uint8_t i_argc_in, int* pi_argi_in
+/* Return: True if buzz was successful or false otherwise.                    */
+BOOL scheduler_buzz(
+   BOOL (*buzz_in)( uint8_t, int* ), uint8_t i_argc_in, int* pi_argi_in,
+   BOOL i_queue_in
 ) {
+
+   if( !gi_buzzer_locked ) {
+      gi_buzzer_locked = TRUE;
+      (*buzz_in)( i_argc_in, pi_argi_in );
+      gi_buzzer_locked = FALSE;
+   }
+
+   return TRUE;
+
+   #if 0
    struct scheduler_buzz* ps_buzz_new,
       * ps_buzz_iter;
 
+   /* TODO: Queue the buzz if the buzzer is in use and queuing is enabled and
+    *       it was requested.
+    */
    /* Start the timer if a task was added and none were present. */
    if( 0 == gi_buzzes_count ) {
       CCTL0 = CCIE;
@@ -119,6 +164,7 @@ uint8_t scheduler_add_buzz(
    
    gi_buzzes_count++;
    return ps_buzz_new->id;
+   #endif
 }
 
 static void _scheduler_free_buzz( struct scheduler_buzz* ps_buzz_in ) {
@@ -163,15 +209,18 @@ void scheduler_halt( void ) {
 
 #pragma vector=WDT_VECTOR
 __interrupt void scheduler_wdt_isr( void ) {
+   #if 0
    struct scheduler_task* ps_task_iter = gps_timer_tasks;
    while( NULL != ps_task_iter ) {
       (*ps_task_iter->task)( ps_task_iter->argc, ps_task_iter->argi );
       ps_task_iter = ps_task_iter->next;
    }
+   #endif
 }
 
 #pragma vector=TIMERA0_VECTOR
 __interrupt void scheduler_timer0_isr( void ) {
+   #if 0
    struct scheduler_buzz* ps_buzz_temp;
    /* Process the first buzz. */
    if( !(*gps_buzzes->buzz)( gps_buzzes->argc, gps_buzzes->argi ) ) {
@@ -181,5 +230,6 @@ __interrupt void scheduler_timer0_isr( void ) {
       _scheduler_free_buzz( ps_buzz_temp );
       gi_buzzes_count--;
    }
+   #endif
 }
 
