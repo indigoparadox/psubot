@@ -4,7 +4,7 @@
 
 /* = Constants = */
 
-#define SPEAKER   BIT7
+#define SPEAKER   BIT6
 
 typedef enum {
    BEEP_NULL = 0,
