@@ -8,19 +8,17 @@ uint8_t gi_buzzes_count = 0;
 BOOL gi_buzzer_locked = FALSE;
 
 void scheduler_init( void ) {
-   #if 0
-   #ifdef CALBC1_16MHZ
+   #ifdef CALBC1_8MHZ
    /* Try to go as fast as possible. */
-   if( 0xff != CALBC1_16MHZ ) {
+   if( 0xff != CALBC1_8MHZ ) {
       DCOCTL = 0;
-      BCSCTL1 = CALBC1_16MHZ;
-      DCOCTL = CALDCO_16MHZ;
+      BCSCTL1 = CALBC1_8MHZ;
+      DCOCTL = CALDCO_8MHZ;
 
    } else {
       scheduler_halt();
    }
-   #endif /* CALBC1_16MHZ */
-   #endif
+   #endif /* CALBC1_8MHZ */
 }
 
 uint8_t scheduler_add_task(
@@ -41,11 +39,11 @@ uint8_t scheduler_add_task(
       CCTL0 = CCIE;
       #endif
 
-      P1SEL = SPEAKER;
-      CCR0 = 8000000 / 8000;;
-      unsigned long t = 0;
-      CCR1 = ((t<<1)^((t<<1)+(t>>7)&t>>12))|t>>(4-(1^7&(t>>19)))|t>>7;
-      CCTL1 = OUTMOD_7;
+      P1DIR |= SPEAKER;
+      P1SEL |= SPEAKER;
+      CCR0 = 999;
+      CCR1 = 250;
+      CCTL1 |= OUTMOD_7;
       TACTL = TASSEL_2 + MC_1;
    }
 
@@ -209,13 +207,11 @@ void scheduler_halt( void ) {
 
 #pragma vector=WDT_VECTOR
 __interrupt void scheduler_wdt_isr( void ) {
-   #if 0
    struct scheduler_task* ps_task_iter = gps_timer_tasks;
    while( NULL != ps_task_iter ) {
       (*ps_task_iter->task)( ps_task_iter->argc, ps_task_iter->argi );
       ps_task_iter = ps_task_iter->next;
    }
-   #endif
 }
 
 #pragma vector=TIMERA0_VECTOR
