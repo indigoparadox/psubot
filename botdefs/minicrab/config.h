@@ -1,5 +1,5 @@
 
-#define CPU msp430g2231
+#define CPU msp430g2211
 
 #define ENABLE_SHELL
 

@@ -17,6 +17,12 @@
 
 #include <stdlib.h>
 
+#ifdef ENABLE_BEEP
+#ifndef CALBC1_8MHZ_
+#error "Beep enabled without fast enough microcontroller."
+#endif /* CALBC1_8MHZ */
+#endif /* ENABLE_BEEP */
+
 SHELL_ENABLE();
 
 int main( void ) {
@@ -62,6 +68,7 @@ int main( void ) {
    #ifdef SERIAL_BT_CONNECT_MAC
    uart_echo( "\r\n+CONN=" SERIAL_BT_CONNECT_MAC "\r\n" );
    #endif /* SERIAL_BT_CONNECT_MAC */
+   
    #endif /* ENABLE_SERIAL_BT */
 
    #ifdef ENABLE_BEEP
