@@ -48,7 +48,9 @@ struct scheduler_buzz {
    int duty;
    int duration;
    int mode;
-   BOOL (*callback)( uint8_t, int* );
+   /* TODO: Callback should be the ISR, shutdown should be shutdown. */
+   void (*callback)( uint8_t, int* );
+   BOOL (*finished)( uint8_t, int* );
    uint8_t argc;
    int* argi;
    struct scheduler_buzz* next;
@@ -62,7 +64,8 @@ uint8_t scheduler_add_task(
 );
 void scheduler_del_task( uint8_t );
 void scheduler_buzz(
-   PORT, int, int, int, int, int, BOOL (*)( uint8_t, int* ), uint8_t, int*
+   PORT, int, int, int, int, int, void (*)( uint8_t, int* ),
+   BOOL (*)( uint8_t, int* ), uint8_t, int*
 );
 void scheduler_buzzer_task( uint8_t, int* );
 void scheduler_halt( void );

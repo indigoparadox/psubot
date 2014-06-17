@@ -11,7 +11,7 @@ void beep_init( void ) {
 void beep( int i_freq_in, int i_time_in ) {
    scheduler_buzz(
       SPEAKER_PORT, SPEAKER, 1000 - 1, 250, i_time_in * 10, BUZZER_MODE_UP,
-      NULL, 0, NULL
+      NULL, NULL, 0, NULL
    );
 }
 

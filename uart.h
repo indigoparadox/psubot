@@ -38,7 +38,8 @@ struct uart_task {
 
 void uart_serial_init( void );
 void uart_putc( const char );
-BOOL uart_sw_serial_putc_callback( uint8_t, int* );
+void uart_sw_serial_putc_callback( uint8_t, int* );
+BOOL uart_sw_serial_putc_finished( uint8_t, int* );
 void uart_echo( char* );
 void uart_open( char*, BOOL (*)( char ) );
 
