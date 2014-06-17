@@ -4,6 +4,15 @@
 
 #include "core.h"
 
+/* = Constants = */
+
+typedef enum {
+   PORT1,
+   PORT2
+} PORT;
+
+/* = Function Prototypes = */
+
 int pins_in( PORT, int );
 void pins_dir_or( PORT, int );
 void pins_out_or( PORT, int );
