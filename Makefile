@@ -27,7 +27,7 @@ all: psubot
 
 psubot: psubot.o $(BASE_SYSTEM) $(INTERACTIVE_SYSTEM)
 	$(CC) $(CFLAGS) -Wl,-Map=$@.map,--cref -o $@.out $^
-	msp430-strip $@.out
+	#msp430-strip $@.out
 
 # = Generic Utility Definitions =
 
