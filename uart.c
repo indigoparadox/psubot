@@ -79,7 +79,7 @@ void uart_putc( const char c_char_in ) {
 
    /* Start sending this bit by buzzing the TX line. */
    scheduler_buzz(
-      SERIAL_SW_TX_PORT, SERIAL_SW_TX, TAR + UART_BIT_TIME, -1, -1,
+      &SERIAL_SW_TX_PSEL, SERIAL_SW_TX, TAR + UART_BIT_TIME, -1, -1,
       BUZZER_MODE_CONTINUOUS, uart_sw_serial_putc_callback,
       uart_sw_serial_putc_finished, 0, NULL
    );

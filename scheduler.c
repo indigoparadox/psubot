@@ -114,7 +114,7 @@ void scheduler_del_task( uint8_t i_id_in ) {
  *                 Useful for more complicated buzzes. Only called if the     *
  *                 duration is > 0.                                           */
 void scheduler_buzz(
-   PORT i_port_in, int i_pin_in, int i_period_in, int i_duty_in,
+   PORT_REF* pi_port_in, uint8_t i_pin_in, int i_period_in, int i_duty_in,
    int i_duration_in, int i_mode_in, void (*callback_in)( uint8_t, int* ),
    BOOL (*finished_in)( uint8_t, int* ), uint8_t i_argc_in, int* pi_argi_in
 ) {
@@ -123,7 +123,7 @@ void scheduler_buzz(
 
    /* Create buzz in queue. */
    ps_buzz_new = malloc( sizeof( struct scheduler_buzz ) );
-   ps_buzz_new->port = i_port_in;
+   ps_buzz_new->port_sel = pi_port_in;
    ps_buzz_new->pin = i_pin_in;
    ps_buzz_new->period = i_period_in;
    ps_buzz_new->duty = i_duty_in;
@@ -181,14 +181,7 @@ void scheduler_buzzer_task( uint8_t i_argc_in, int* pi_argi_in ) {
          )
       ) {
          /* If we're at the end of a duration, stop buzzing. */
-         switch( ps_buzz_iter->port ) {
-            case PORT1:
-               P1SEL &= ~(ps_buzz_iter->pin);
-               break;
-            case PORT2:
-               P2SEL &= ~(ps_buzz_iter->pin);
-               break;
-         }
+         *(ps_buzz_iter->port_sel) &= ~(ps_buzz_iter->pin);
 
          /* Remove the task from the buzz queue. */
          gps_buzzes = ps_buzz_iter->next;
@@ -199,14 +192,7 @@ void scheduler_buzzer_task( uint8_t i_argc_in, int* pi_argi_in ) {
       } else if( !i_buzzer_locked ) {
          /* Start the next buzz. */
          i_buzzer_locked = TRUE;
-         switch( ps_buzz_iter->port ) {
-            case PORT1:
-               P1SEL |= ps_buzz_iter->pin;
-               break;
-            case PORT2:
-               P2SEL |= ps_buzz_iter->pin;
-               break;
-         }
+         *(ps_buzz_iter->port_sel) |= ps_buzz_iter->pin;
          CCR0 = ps_buzz_iter->period;
          if( 0 < ps_buzz_iter->duty ) {
             CCR1 = ps_buzz_iter->duty;
@@ -252,6 +238,7 @@ void scheduler_halt( void ) {
    P1OUT = 0;
    P2OUT = 0;
 
+   #if 0
    /* Blink indefinitely. */
    pins_dir_or( ILED_PORT, ILED );
    for(;;) {
@@ -260,6 +247,7 @@ void scheduler_halt( void ) {
       pins_out_and( ILED_PORT, ~ILED );
       __delay_cycles( 250000 );
    }
+   #endif
 }
 
 #pragma vector=WDT_VECTOR

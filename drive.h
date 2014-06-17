@@ -2,7 +2,6 @@
 #ifndef DRIVE_H
 #define DRIVE_H
 
-#include "pins.h"
 #include "scheduler.h"
 
 /* = Constants = */

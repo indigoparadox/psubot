@@ -4,13 +4,13 @@
 #include <msp430.h>
 
 void beep_init( void ) {
-   pins_dir_or( SPEAKER_PORT, SPEAKER );
-   pins_out_and( SPEAKER_PORT, ~SPEAKER );
+   SPEAKER_PDIR |= SPEAKER;
+   SPEAKER_POUT &= ~SPEAKER;
 }
 
 void beep( int i_freq_in, int i_time_in ) {
    scheduler_buzz(
-      SPEAKER_PORT, SPEAKER, 1000 - 1, 250, i_time_in * 10, BUZZER_MODE_UP,
+      &SPEAKER_PSEL, SPEAKER, 1000 - 1, 250, i_time_in * 10, BUZZER_MODE_UP,
       NULL, NULL, 0, NULL
    );
 }
