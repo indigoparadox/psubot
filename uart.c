@@ -120,9 +120,9 @@ void uart_open( char* pc_id_in, BOOL (*task_in)( char ) ) {
 
    /* Create the new task. */
    ps_task_new = malloc( sizeof( struct uart_task ) );
-   memset( ps_task_new, 0, sizeof( struct uart_task ) );
    ps_task_new->task = task_in;
    ps_task_new->id = pc_id_in;
+   ps_task_new->prev = NULL;
 
    /* Add the task to the tasks list. */
    if( NULL == gps_uart_tasks ) {
