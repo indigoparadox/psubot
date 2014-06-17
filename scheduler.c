@@ -175,7 +175,7 @@ void scheduler_buzzer_task( uint8_t i_argc_in, int* pi_argi_in ) {
                P2SEL |= ps_buzz_iter->pin;
                break;
          }
-         CCR0 = ps_buzz_iter->period - 1;
+         CCR0 = ps_buzz_iter->period;
          CCR1 = ps_buzz_iter->duty;
          CCTL1 |= OUTMOD_7;
          TACTL = TASSEL_2 + MC_1;
