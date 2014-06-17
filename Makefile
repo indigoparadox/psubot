@@ -1,7 +1,7 @@
 
 # = Feature Checks =
 
-BASE_SYSTEM = pins.o scheduler.o drive.o
+BASE_SYSTEM = scheduler.o drive.o
 
 USE_EYE_CHECK=$(shell grep '^.define ENABLE_EYE' botdefs/$(BOT)/config.h 2>/dev/null)
 ifneq ($(USE_EYE_CHECK),)

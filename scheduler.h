@@ -8,7 +8,6 @@
 #include <string.h>
 
 #include "core.h"
-#include "pins.h"
 
 /* = TI Header Fixes = */
 
@@ -42,13 +41,12 @@ struct scheduler_task {
 struct scheduler_buzz;
 struct scheduler_buzz {
    /* Return TRUE until done. */
-   PORT port;
-   int pin;
+   PORT_REF* port_sel;
+   uint8_t pin;
    int period;
    int duty;
    int duration;
    int mode;
-   /* TODO: Callback should be the ISR, shutdown should be shutdown. */
    void (*callback)( uint8_t, int* );
    BOOL (*finished)( uint8_t, int* );
    uint8_t argc;
@@ -64,7 +62,7 @@ uint8_t scheduler_add_task(
 );
 void scheduler_del_task( uint8_t );
 void scheduler_buzz(
-   PORT, int, int, int, int, int, void (*)( uint8_t, int* ),
+   PORT_REF*, uint8_t, int, int, int, int, void (*)( uint8_t, int* ),
    BOOL (*)( uint8_t, int* ), uint8_t, int*
 );
 void scheduler_buzzer_task( uint8_t, int* );

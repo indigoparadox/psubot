@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #include "scheduler.h"
-#include "pins.h"
 
 /* = Constants = */
 

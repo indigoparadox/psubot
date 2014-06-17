@@ -24,6 +24,8 @@ typedef uint8_t BOOL;
 #define FALSE 0
 #endif /* FALSE */
 
+#define PORT_REF volatile unsigned char
+
 /* = Macros = */
 
 #define STR_HELPER( num ) #num
