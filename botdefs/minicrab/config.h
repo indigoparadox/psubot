@@ -5,7 +5,9 @@
 
 /* Software serial only supported on port 1. */
 
+#define SERIAL_SW_TX_PORT  PORT1
 #define SERIAL_SW_TX    BIT2
+#define SERIAL_SW_RX_PORT  PORT1
 #define SERIAL_SW_RX    BIT1
 #define SERIAL_SW_BAUD  9600
 
