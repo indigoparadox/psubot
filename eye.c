@@ -6,12 +6,10 @@ int gi_eye_move_loops = 0;
 void eye_enable( void ) {
 
    /* Setup Motor I/O */
-   P1DIR = 0;
    pins_dir_or( EYE_R_PORT, EYE_R );
    pins_dir_or( EYE_L_PORT, EYE_L );
    
    /* Setup LED I/O */
-   P2DIR = 0;
    pins_dir_or( EYE_LED_RED_PORT, EYE_LED_RED );
    pins_dir_or( EYE_LED_GREEN_PORT, EYE_LED_GREEN );
    pins_dir_or( EYE_LED_BLUE_PORT, EYE_LED_BLUE );
