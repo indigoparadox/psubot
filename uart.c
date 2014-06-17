@@ -2,6 +2,7 @@
 #include "uart.h"
 
 struct uart_task* gps_uart_tasks = NULL;
+uint8_t gi_uart_tasks_count = 0;
 
 #ifndef ENABLE_SERIAL_HW
 
@@ -18,19 +19,6 @@ static volatile BOOL gi_receiving = FALSE;
 static volatile BOOL gi_has_received = FALSE;
 
 #endif /* ENABLE_SERIAL_HW */
-
-static void _uart_listen( void ) {
-   #ifdef ENABLE_SERIAL_HW
-   /* Use hardware serial interface. */
-
-   /* Enable UART RX interrupt. */
-   IE2 |= UCA0RXIE;
-
-   #else
-   /* TODO: Use software serial approximation. */
-
-   #endif /* ENABLE_SERIAL_HW */
-}
 
 void uart_serial_init( void ) {
    
@@ -92,7 +80,8 @@ void uart_putc( const char c_char_in ) {
    /* Start sending this bit by buzzing the TX line. */
    scheduler_buzz(
       SERIAL_SW_TX_PORT, SERIAL_SW_TX, TAR + UART_BIT_TIME, -1, -1,
-      BUZZER_MODE_CONTINUOUS, uart_sw_serial_putc_callback, 0, NULL
+      BUZZER_MODE_CONTINUOUS, uart_sw_serial_putc_callback,
+      uart_sw_serial_putc_finished, 0, NULL
    );
 
    #if 0
@@ -104,7 +93,11 @@ void uart_putc( const char c_char_in ) {
 }
 
 #ifndef ENABLE_SERIAL_HW
-BOOL uart_sw_serial_putc_callback( uint8_t i_argc_in, int* pi_argi_in ) {
+
+void uart_sw_serial_putc_callback( uint8_t i_argc_in, int* pi_argi_in ) {
+}
+
+BOOL uart_sw_serial_putc_finished( uint8_t i_argc_in, int* pi_argi_in ) {
    /* This is probably bad behavior, but hang everything up until the bit is  *
     * sent.                                                                   */
    CCTL0 = CCIS_0 + OUTMOD_0 + CCIE + OUT;
@@ -113,6 +106,7 @@ BOOL uart_sw_serial_putc_callback( uint8_t i_argc_in, int* pi_argi_in ) {
    /* We should be done now. */
    return FALSE;
 }
+
 #endif /* ENABLE_SERIAL_HW */
 
 void uart_echo( char* pc_string_in ) {
@@ -126,6 +120,7 @@ void uart_echo( char* pc_string_in ) {
    }
 }
 
+#if 0
 uint8_t uart_count_tasks( void ) {
    struct uart_task* ps_task_iter = gps_uart_tasks;
    uint8_t i_task_count = 0;
@@ -137,13 +132,10 @@ uint8_t uart_count_tasks( void ) {
 
    return i_task_count;
 }
+#endif
 
 void uart_open( char* pc_id_in, BOOL (*task_in)( char ) ) {
    struct uart_task* ps_task_new;
-   uint8_t i_tasks_count;
-
-   /* Get the task count before we add anything. */
-   i_tasks_count = uart_count_tasks();
 
    /* Create the new task. */
    ps_task_new = malloc( sizeof( struct uart_task ) );
@@ -160,10 +152,19 @@ void uart_open( char* pc_id_in, BOOL (*task_in)( char ) ) {
    }
 
    /* If this is the first task, start the listener. */
-   if( 1 > i_tasks_count ) {
-      _uart_listen();
+   if( 1 > gi_uart_tasks_count ) {
+      #ifdef ENABLE_SERIAL_HW
+      /* Enable UART RX interrupt. */
+      IE2 |= UCA0RXIE;
+      #else
+      /* TODO: Enable UART listen in software. */
+      #endif /* ENABLE_SERIAL_HW */
    }
+
+   gi_uart_tasks_count++;
 }
+
+/* TODO: Add close function. */
 
 #ifdef ENABLE_SERIAL_HW
 
@@ -182,10 +183,6 @@ __interrupt void uart_uart0_isr( void ) {
       ps_task_iter = ps_task_iter->prev;
    }
 }
-
-#else
-
-/* TODO: Implement software UART. */
 
 #endif /* ENABLE_SERIAL_HW */
 

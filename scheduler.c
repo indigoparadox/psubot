@@ -110,13 +110,13 @@ void scheduler_del_task( uint8_t i_id_in ) {
 }
 
 /*
- * i_callback_in - An optional callback to check if we should stop buzzing.   *
+ * i_finished_in - An optional callback to check if we should stop buzzing.   *
  *                 Useful for more complicated buzzes. Only called if the     *
  *                 duration is > 0.                                           */
 void scheduler_buzz(
    PORT i_port_in, int i_pin_in, int i_period_in, int i_duty_in,
-   int i_duration_in, int i_mode_in, BOOL (*callback_in)( uint8_t, int* ),
-   uint8_t i_argc_in, int* pi_argi_in
+   int i_duration_in, int i_mode_in, void (*callback_in)( uint8_t, int* ),
+   BOOL (*finished_in)( uint8_t, int* ), uint8_t i_argc_in, int* pi_argi_in
 ) {
    struct scheduler_buzz* ps_buzz_new,
       * ps_buzz_iter;
@@ -130,6 +130,7 @@ void scheduler_buzz(
    ps_buzz_new->duration = i_duration_in;
    ps_buzz_new->mode = i_mode_in;
    ps_buzz_new->callback = callback_in;
+   ps_buzz_new->finished = finished_in;
    ps_buzz_new->argc = i_argc_in;
    ps_buzz_new->argi = pi_argi_in;
    ps_buzz_new->next = NULL;
@@ -167,15 +168,15 @@ void scheduler_buzzer_task( uint8_t i_argc_in, int* pi_argi_in ) {
             /* If buzzer duration is negative, and there is a callback, call  *
              * the callback to see if we're done buzzing.                     */
             0 > ps_buzz_iter->duration && 
-            NULL != ps_buzz_iter->callback &&
-            FALSE == (*ps_buzz_iter->callback)( 
+            NULL != ps_buzz_iter->finished &&
+            FALSE == (*ps_buzz_iter->finished)( 
                ps_buzz_iter->argc,
                ps_buzz_iter->argi
             )
          ) || (
             /* If buzzer duration is out or negative and there is no          *
              * callback, we must be done buzzing.                             */
-            NULL == ps_buzz_iter->callback &&
+            NULL == ps_buzz_iter->finished &&
             0 >= ps_buzz_iter->duration
          )
       ) {
@@ -267,6 +268,13 @@ __interrupt void scheduler_wdt_isr( void ) {
    while( NULL != ps_task_iter ) {
       (*ps_task_iter->task)( ps_task_iter->argc, ps_task_iter->argi );
       ps_task_iter = ps_task_iter->next;
+   }
+}
+
+#pragma vector=TIMERA0_VECTOR
+__interrupt void scheduler_timera0_isr( void ) {
+   if( NULL != gps_buzzes && NULL != gps_buzzes->callback ) {
+      (*gps_buzzes->callback)( gps_buzzes->argc, gps_buzzes->argi );
    }
 }
 
