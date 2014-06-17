@@ -109,9 +109,14 @@ void scheduler_del_task( uint8_t i_id_in ) {
    }
 }
 
+/*
+ * i_callback_in - An optional callback to check if we should stop buzzing.   *
+ *                 Useful for more complicated buzzes. Only called if the     *
+ *                 duration is > 0.                                           */
 void scheduler_buzz(
    PORT i_port_in, int i_pin_in, int i_period_in, int i_duty_in,
-   int i_duration_in
+   int i_duration_in, int i_mode_in, BOOL (*callback_in)( uint8_t, int* ),
+   uint8_t i_argc_in, int* pi_argi_in
 ) {
    struct scheduler_buzz* ps_buzz_new,
       * ps_buzz_iter;
@@ -123,6 +128,10 @@ void scheduler_buzz(
    ps_buzz_new->period = i_period_in;
    ps_buzz_new->duty = i_duty_in;
    ps_buzz_new->duration = i_duration_in;
+   ps_buzz_new->mode = i_mode_in;
+   ps_buzz_new->callback = callback_in;
+   ps_buzz_new->argc = i_argc_in;
+   ps_buzz_new->argi = pi_argi_in;
    ps_buzz_new->next = NULL;
 
    /* Add the buzz to the end of the buzz list. */
@@ -139,6 +148,12 @@ void scheduler_buzz(
    gi_buzzes_count++;
 }
 
+static void _scheduler_free_buzz( struct scheduler_buzz* ps_buzz_in ) {
+   free( ps_buzz_in->argi );
+   free( ps_buzz_in );
+   /* TODO: Do we free the task function pointer? */
+}
+
 /* Purpose: Start/stop buzzes as indicated by the queue.                      */
 void scheduler_buzzer_task( uint8_t i_argc_in, int* pi_argi_in ) {
    static int i_buzzer_locked = FALSE;
@@ -147,7 +162,23 @@ void scheduler_buzzer_task( uint8_t i_argc_in, int* pi_argi_in ) {
    if( NULL != ps_buzz_iter ) {
       /* Operate on the first buzz in line. */
 
-      if( 0 >= ps_buzz_iter->duration ) {
+      if(
+         (
+            /* If buzzer duration is negative, and there is a callback, call  *
+             * the callback to see if we're done buzzing.                     */
+            0 > ps_buzz_iter->duration && 
+            NULL != ps_buzz_iter->callback &&
+            FALSE == (*ps_buzz_iter->callback)( 
+               ps_buzz_iter->argc,
+               ps_buzz_iter->argi
+            )
+         ) || (
+            /* If buzzer duration is out or negative and there is no          *
+             * callback, we must be done buzzing.                             */
+            NULL == ps_buzz_iter->callback &&
+            0 >= ps_buzz_iter->duration
+         )
+      ) {
          /* If we're at the end of a duration, stop buzzing. */
          switch( ps_buzz_iter->port ) {
             case PORT1:
@@ -160,7 +191,7 @@ void scheduler_buzzer_task( uint8_t i_argc_in, int* pi_argi_in ) {
 
          /* Remove the task from the buzz queue. */
          gps_buzzes = ps_buzz_iter->next;
-         free( ps_buzz_iter );
+         _scheduler_free_buzz( ps_buzz_iter );
          ps_buzz_iter = NULL;
          i_buzzer_locked = FALSE;
 
@@ -176,14 +207,17 @@ void scheduler_buzzer_task( uint8_t i_argc_in, int* pi_argi_in ) {
                break;
          }
          CCR0 = ps_buzz_iter->period;
-         CCR1 = ps_buzz_iter->duty;
+         if( 0 < ps_buzz_iter->duty ) {
+            CCR1 = ps_buzz_iter->duty;
+         }
+         CCTL0 = OUT;
          CCTL1 |= OUTMOD_7;
-         TACTL = TASSEL_2 + MC_1;
+         TACTL = TASSEL_2 + ps_buzz_iter->mode;
       }
 
       /* Start or continue counting down. */
       /* TODO: Adjust time consumed for items in task queue? */
-      if( NULL != ps_buzz_iter ) {
+      if( NULL != ps_buzz_iter && 0 < ps_buzz_iter->duration ) {
          ps_buzz_iter->duration--;
       }
    }
@@ -201,6 +235,8 @@ void scheduler_halt( void ) {
       _scheduler_free_task( ps_task_remove );
    }
    gps_timer_tasks = NULL;
+
+   /* TODO: Remove all scheduled buzzes. */
 
    /* Disable all interrupts. */
    P1IE = 0;

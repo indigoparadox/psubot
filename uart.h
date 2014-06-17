@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 #include "core.h"
+#include "scheduler.h"
 
 /* = Constants = */
 
@@ -17,9 +18,11 @@
 #define UART_UCA0BR0 104
 #define UART_UCA0BR1 0
 #else
-#define UART_CPU_FREQ  1000000 # 1 Mhz
+#define UART_CPU_FREQ  1000000 /* 1 Mhz TODO: Adjust for other clocks. */
 #define UART_BIT_TIME UART_CPU_FREQ / SERIAL_SW_BAUD
 #define UART_HALF_BIT_TIME UART_BIT_TIME / 2
+#define UART_STOP_BIT 0x100
+#define UART_BIT_COUNT 0xa /* 10: 8 bits and start/stop. */
 #endif /* ENABLE_SERIAL_HW */
 
 /* = Structs = */
@@ -35,6 +38,7 @@ struct uart_task {
 
 void uart_serial_init( void );
 void uart_putc( const char );
+BOOL uart_sw_serial_putc_callback( uint8_t, int* );
 void uart_echo( char* );
 void uart_open( char*, BOOL (*)( char ) );
 

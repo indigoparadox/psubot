@@ -22,6 +22,11 @@
 #define TIMERA0_VECTOR TIMER0_A0_VECTOR
 #endif /* TIMERA0_VECTOR */
 
+/* = Constants = */
+
+#define BUZZER_MODE_CONTINUOUS MC_2
+#define BUZZER_MODE_UP MC_1
+
 /* = Structs = */
 
 struct scheduler_task;
@@ -42,6 +47,10 @@ struct scheduler_buzz {
    int period;
    int duty;
    int duration;
+   int mode;
+   BOOL (*callback)( uint8_t, int* );
+   uint8_t argc;
+   int* argi;
    struct scheduler_buzz* next;
 };
 
@@ -52,7 +61,9 @@ uint8_t scheduler_add_task(
    void (*)( uint8_t, int* ), uint8_t (*)( uint8_t, int* ), uint8_t, int*
 );
 void scheduler_del_task( uint8_t );
-void scheduler_buzz( PORT, int, int, int, int );
+void scheduler_buzz(
+   PORT, int, int, int, int, int, BOOL (*)( uint8_t, int* ), uint8_t, int*
+);
 void scheduler_buzzer_task( uint8_t, int* );
 void scheduler_halt( void );
 

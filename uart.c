@@ -5,6 +5,10 @@ struct uart_task* gps_uart_tasks = NULL;
 
 #ifndef ENABLE_SERIAL_HW
 
+#ifdef CALBC1_8MHZ_
+#error "Software UART enabled with too-fast microcontroller."
+#endif /* CALBC1_8MHZ */
+
 /* Constants required for  software UART. */
 
 static volatile uint8_t gi_bit_count;
@@ -58,9 +62,10 @@ void uart_serial_init( void ) {
    /* Use software serial approximation. */
 
    /* Software serial only supported on port 1. */
-   P1SEL |= SERIAL_SW_TX;
+   /* P1SEL |= SERIAL_SW_TX; */
    P1DIR |= SERIAL_SW_TX;
 
+   /* TODO: Move to interrupt scheduler. */
    P1IES |= SERIAL_SW_RX;
    P1IFG &= ~SERIAL_SW_RX;
    P1IE |= SERIAL_SW_RX;
@@ -78,7 +83,17 @@ void uart_putc( const char c_char_in ) {
    #else
    /* TODO: Use software serial approximation. */
 
+   /* Get output buffers ready. */
    gi_tx_byte = c_char_in;
+   gi_bit_count = UART_BIT_COUNT;
+   gi_tx_byte |= UART_STOP_BIT; /* Add stop bit. */
+   gi_tx_byte = gi_tx_byte << 1; /* Add start bit. */
+
+   /* Start sending this bit by buzzing the TX line. */
+   scheduler_buzz(
+      SERIAL_SW_TX_PORT, SERIAL_SW_TX, TAR + UART_BIT_TIME, -1, -1,
+      BUZZER_MODE_CONTINUOUS, uart_sw_serial_putc_callback, 0, NULL
+   );
 
    #if 0
    /* Wait for line to be free. */
@@ -87,6 +102,18 @@ void uart_putc( const char c_char_in ) {
 
    #endif /* ENABLE_SERIAL_HW */
 }
+
+#ifndef ENABLE_SERIAL_HW
+BOOL uart_sw_serial_putc_callback( uint8_t i_argc_in, int* pi_argi_in ) {
+   /* This is probably bad behavior, but hang everything up until the bit is  *
+    * sent.                                                                   */
+   CCTL0 = CCIS_0 + OUTMOD_0 + CCIE + OUT;
+   while( CCTL0 & CCIE );
+
+   /* We should be done now. */
+   return FALSE;
+}
+#endif /* ENABLE_SERIAL_HW */
 
 void uart_echo( char* pc_string_in ) {
    char* pc_iter = pc_string_in;
