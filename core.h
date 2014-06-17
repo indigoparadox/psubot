@@ -24,11 +24,6 @@ typedef uint8_t BOOL;
 #define FALSE 0
 #endif /* FALSE */
 
-typedef enum {
-   PORT1,
-   PORT2
-} PORT;
-
 /* = Macros = */
 
 #define STR_HELPER( num ) #num
