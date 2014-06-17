@@ -32,7 +32,9 @@ int main( void ) {
 
    WDTCTL = WDTPW | WDTHOLD;
    P1OUT = 0;
+   P1DIR = 0;
    P2OUT = 0;
+   P2DIR = 0;
    __enable_interrupt();
 
    scheduler_init();
@@ -52,7 +54,7 @@ int main( void ) {
    uart_serial_init();
 
    #ifdef ENABLE_EYE
-   eye_glow( EYE_RED, EYE_DUTY_HALF );
+   eye_glow( EYE_RED, 1 );
    #endif /* ENABLE_EYE */
 
    #ifdef ENABLE_SERIAL_BT
@@ -68,7 +70,9 @@ int main( void ) {
    #ifdef SERIAL_BT_CONNECT_MAC
    uart_echo( "\r\n+CONN=" SERIAL_BT_CONNECT_MAC "\r\n" );
    #endif /* SERIAL_BT_CONNECT_MAC */
-   
+   #else
+   /* Just delay long enough to flash red. */
+   __delay_cycles( 100000 );
    #endif /* ENABLE_SERIAL_BT */
 
    #ifdef ENABLE_BEEP
@@ -77,7 +81,7 @@ int main( void ) {
    #endif /* ENABLE_BEEP */
 
    #ifdef ENABLE_EYE
-   eye_glow( EYE_GREEN, EYE_DUTY_HALF );
+   eye_glow( EYE_GREEN, 1 );
    #endif /* ENABLE_EYE */
 
    #ifdef ENABLE_SHELL
