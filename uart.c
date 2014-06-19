@@ -49,9 +49,7 @@ void uart_serial_init( void ) {
    #else
    /* Use software serial approximation. */
 
-   /* Software serial only supported on port 1. */
-   /* P1SEL |= SERIAL_SW_TX; */
-   P1DIR |= SERIAL_SW_TX;
+   SERIAL_SW_TX_PDIR |= SERIAL_SW_TX;
 
    /* TODO: Move to interrupt scheduler. */
    P1IES |= SERIAL_SW_RX;
