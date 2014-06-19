@@ -238,6 +238,7 @@ void scheduler_halt( void ) {
    P1OUT = 0;
    P2OUT = 0;
 
+   /* TODO: Find an effective way to indicate halting. */
    #if 0
    /* Blink indefinitely. */
    pins_dir_or( ILED_PORT, ILED );

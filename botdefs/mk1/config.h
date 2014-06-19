@@ -13,10 +13,11 @@
 #define SERIAL_SW_BAUD  9600
 #endif
 
-/*
+#if 0
 #define ENABLE_SERIAL_BT
 #define SERIAL_BT_ID "PSUBot"
-*/
+#define SERIAL_BT_CONNECT_MAC "00:1B:DC:0F:5C:4D"
+#endif
 
 #define EYE_LED_RED_PDIR   P2DIR
 #define EYE_LED_RED_POUT   P2OUT

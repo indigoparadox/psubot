@@ -4,6 +4,7 @@
 #define ENABLE_SHELL
 
 #define SERIAL_SW_TX_PSEL  P1SEL
+#define SERIAL_SW_TX_PDIR  P1DIR
 #define SERIAL_SW_TX       BIT2
 #define SERIAL_SW_RX_PSEL  P1SEL
 #define SERIAL_SW_RX       BIT1
